@@ -1,0 +1,13 @@
+# Cache e arquivos de importação local do Godot 4+
+.godot/
+
+# Presets de exportação (caso use senhas/chaves locais)
+export_presets.cfg
+
+# Executáveis / builds
+build/
+exports/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db

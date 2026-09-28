@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://djakacjuo8x0q"]
+
+[ext_resource type="Script" uid="uid://c5mwtpel8yx4e" path="res://scripts/level_manager.gd" id="1_ixygg"]
+[ext_resource type="Script" uid="uid://ijegsgnw7t41" path="res://scenes/grid_system.gd" id="2_20kwy"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_20kwy"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_nhfup"]
+sky_material = SubResource("ProceduralSkyMaterial_20kwy")
+
+[sub_resource type="Environment" id="Environment_sdrrl"]
+background_mode = 2
+sky = SubResource("Sky_nhfup")
+glow_enabled = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pr1q8"]
+size = Vector3(5, 0.1, 5)
+
+[sub_resource type="Curve3D" id="Curve3D_jv5u5"]
+
+[node name="LevelManager" type="Node3D" unique_id=640780407]
+script = ExtResource("1_ixygg")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1835314610]
+environment = SubResource("Environment_sdrrl")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=970034781]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=242257389]
+transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 2.5, 6.5, 6.5)
+
+[node name="BoardPlane" type="StaticBody3D" parent="." unique_id=387951738]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, 2.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BoardPlane" unique_id=454638281]
+shape = SubResource("BoxShape3D_pr1q8")
+
+[node name="GridSystem" type="Node3D" parent="." unique_id=737173662]
+script = ExtResource("2_20kwy")
+
+[node name="TrainPath" type="Path3D" parent="." unique_id=2071813248]
+curve = SubResource("Curve3D_jv5u5")
