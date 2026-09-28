@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://djakacjuo8x0q"]
 
 [ext_resource type="Script" uid="uid://c5mwtpel8yx4e" path="res://scripts/level_manager.gd" id="1_ixygg"]
-[ext_resource type="Script" uid="uid://ijegsgnw7t41" path="res://scenes/grid_system.gd" id="2_20kwy"]
+[ext_resource type="Script" uid="uid://ijegsgnw7t41" path="res://scripts/grid_system.gd" id="2_20kwy"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_20kwy"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
