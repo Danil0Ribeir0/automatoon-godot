@@ -19,20 +19,14 @@ func _ready() -> void:
 func init_level() -> void:
 	grid_data.clear()
 	
-	# 1. Preenche a grid 5x5 com tiles vazios
 	for y in range(grid_size.y):
 		for x in range(grid_size.x):
 			grid_data[Vector2i(x, y)] = RailTileData.new(RailTileData.TileType.EMPTY)
 	
-	# 2. Cria o SPAWN fora da grid (-1, 2) mostrando os vagões do trem
 	var spawn_label := "Trem:\n[" + ",".join(train_wagons) + "]"
 	grid_data[spawn_coords] = RailTileData.new(RailTileData.TileType.SPAWN, 3, true, spawn_label)
 	
-	# 3. Cria o EXIT fora da grid (5, 2) como estado final (qf)
 	grid_data[exit_coords] = RailTileData.new(RailTileData.TileType.EXIT, 1, true, "FIM")
-	
-	# 4. Cria a ESTAÇÃO "1" fixa em (2, 1) na horizontal (rotação 1)
-	grid_data[Vector2i(2, 1)] = RailTileData.new(RailTileData.TileType.STATION, 1, true, "1")
 
 func grid_to_world(coords: Vector2i) -> Vector3:
 	return Vector3(
@@ -143,7 +137,7 @@ func set_tile_single_dir(coords: Vector2i, dir: int) -> void:
 	if not is_inside_playable_grid(coords) or dir == -1:
 		return
 	var tile: RailTileData = grid_data[coords]
-	if tile.is_locked:
+	if tile.is_locked or tile.type == RailTileData.TileType.STATION:
 		return
 	tile.type = RailTileData.TileType.STRAIGHT
 	tile.rotation_steps = dir % 2
@@ -154,7 +148,7 @@ func set_tile_two_dirs(coords: Vector2i, dir_a: int, dir_b: int) -> void:
 	if not is_inside_playable_grid(coords) or dir_a == -1 or dir_b == -1 or dir_a == dir_b:
 		return
 	var tile: RailTileData = grid_data[coords]
-	if tile.is_locked:
+	if tile.is_locked or tile.type == RailTileData.TileType.STATION:
 		return
 	if (dir_a + 2) % 4 == dir_b:
 		tile.type = RailTileData.TileType.STRAIGHT
@@ -192,10 +186,9 @@ func clear_tile(coords: Vector2i) -> void:
 		return
 	tile.type = RailTileData.TileType.EMPTY
 	tile.rotation_steps = 0
+	tile.symbol = ""
 	tile._setup_base_connections()
 	update_tile_visual(coords)
-
-# === PASSO 4: VALIDADOR DO AUTÔMATO E ROTA ===
 
 func dir_to_vector(dir: int) -> Vector2i:
 	match dir:
@@ -290,28 +283,47 @@ func generate_smooth_curve(path_coords: Array[Vector2i]) -> Curve3D:
 		var curr := path_coords[i]
 		var next := path_coords[i + 1]
 		
-		var in_dir := curr - prev   # Vetor de entrada
-		var out_dir := next - curr  # Vetor de saída
+		var in_dir := curr - prev
+		var out_dir := next - curr
 		var curr_world := grid_to_world(curr)
 		
-		# CASO 1: Trecho Reto (entrada e saída na mesma direção)
 		if in_dir == out_dir:
 			curve.add_point(curr_world)
 			
-		# CASO 2: Curva de 90 graus -> Constrói arco suave
 		else:
-			# Ponto onde o trem toca a borda de entrada da célula
 			var entry_world := curr_world - Vector3(in_dir.x, 0, in_dir.y) * half_cell
 			var entry_out := Vector3(in_dir.x, 0, in_dir.y) * bezier_handle
 			curve.add_point(entry_world, Vector3.ZERO, entry_out)
 			
-			# Ponto onde o trem sai pela borda da célula
 			var exit_world := curr_world + Vector3(out_dir.x, 0, out_dir.y) * half_cell
 			var exit_in := -Vector3(out_dir.x, 0, out_dir.y) * bezier_handle
 			curve.add_point(exit_world, exit_in, Vector3.ZERO)
 			
-	# Ponto final (centro do Exit)
 	var end_world := grid_to_world(path_coords.back())
 	curve.add_point(end_world)
 	
 	return curve
+
+func place_or_rotate_station(coords: Vector2i, station_symbol: String = "1") -> void:
+	if not is_inside_playable_grid(coords):
+		return
+	var tile: RailTileData = grid_data[coords]
+	if tile.is_locked:
+		return
+		
+	if tile.type == RailTileData.TileType.STATION:
+		tile.rotation_steps = (tile.rotation_steps + 1) % 2
+		tile.symbol = station_symbol
+		update_tile_visual(coords)
+		return
+		
+	var incoming_dir := find_incoming_neighbor_dir(coords)
+	var start_rot := 1
+	if incoming_dir != -1:
+		start_rot = incoming_dir % 2
+		
+	tile.type = RailTileData.TileType.STATION
+	tile.rotation_steps = start_rot
+	tile.symbol = station_symbol
+	tile._setup_base_connections()
+	update_tile_visual(coords)

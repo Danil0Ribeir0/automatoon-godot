@@ -24,6 +24,34 @@ size = Vector3(5, 0.1, 5)
 [node name="LevelManager" type="Node3D" unique_id=640780407]
 script = ExtResource("1_ixygg")
 
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1654285894]
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD" unique_id=1997336004]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_bottom = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/MarginContainer" unique_id=216947329]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="RailToolButton" type="Button" parent="HUD/MarginContainer/HBoxContainer" unique_id=1426954075]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+focus_mode = 0
+text = "[1] Trilho"
+
+[node name="StationToolButton" type="Button" parent="HUD/MarginContainer/HBoxContainer" unique_id=975380048]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+focus_mode = 0
+text = "[2] Estação"
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1835314610]
 environment = SubResource("Environment_sdrrl")
 
