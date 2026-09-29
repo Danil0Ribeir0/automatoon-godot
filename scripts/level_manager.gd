@@ -54,6 +54,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_try_run_simulation()
 		else:
 			_reset_simulation()
+	
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+		return
 
 func _start_drag_build(start_coords: Vector2i) -> void:
 	is_dragging_build = true
