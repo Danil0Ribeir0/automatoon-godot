@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c3o00wxb5upuf"]
+
+[ext_resource type="Script" uid="uid://oiqghp1ipkya" path="res://scripts/wagon.gd" id="1_asyws"]
+[ext_resource type="PackedScene" uid="uid://ijftbwwhse76" path="res://assets/wagon.glb" id="2_e0vi3"]
+
+[node name="Wagon" type="PathFollow3D" unique_id=1599574494]
+rotation_mode = 4
+loop = false
+script = ExtResource("1_asyws")
+
+[node name="Visual" type="Node3D" parent="." unique_id=2060117466]
+
+[node name="wagon" parent="Visual" unique_id=159386159 instance=ExtResource("2_e0vi3")]
+
+[node name="NumberLabel" type="Label3D" parent="Visual" unique_id=730837912]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.7, 0)
+font_size = 48
+
+[editable path="Visual/wagon"]
