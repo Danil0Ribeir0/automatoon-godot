@@ -2,14 +2,14 @@ extends Node3D
 class_name Train
 
 @export var wagon_scene: PackedScene = preload("res://scenes/wagon.tscn")
-@export var train_speed: float = 2.5 # Metros por segundo na grid
-@export var wagon_spacing: float = 0.7 # Distância em metros entre o centro de cada vagão
+@export var train_speed: float = 2.5
+@export var wagon_spacing: float = 0.7
 
 @onready var train_path: Path3D = $TrainPath
 
 var wagons: Array[Wagon] = []
 var is_moving: bool = false
-var lead_distance: float = 0.0 # Distância percorrida pela locomotiva líder
+var lead_distance: float = 0.0
 var total_curve_length: float = 0.0
 
 signal reached_station(station_symbol: String)
@@ -22,7 +22,6 @@ func _process(delta: float) -> void:
 		
 	lead_distance += train_speed * delta
 	
-	# Atualiza a posição física de cada vagão ao longo da curva usando metros (progress)
 	for i in range(wagons.size()):
 		var wagon := wagons[i]
 		var wagon_target_dist := lead_distance - (i * wagon_spacing)
@@ -53,7 +52,6 @@ func spawn_train(symbols: Array[String], curve: Curve3D) -> void:
 	lead_distance = 0.0
 	is_moving = false
 	
-	# Instancia cada vagão como filho do TrainPath
 	for s in symbols:
 		var wagon_instance: Wagon = wagon_scene.instantiate()
 		train_path.add_child(wagon_instance)

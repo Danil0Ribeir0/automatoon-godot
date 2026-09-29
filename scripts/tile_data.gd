@@ -31,6 +31,24 @@ func _setup_base_connections() -> void:
 func get_active_connections() -> Array[Dir]:
 	var active: Array[Dir] = []
 	for dir in base_connections:
-		var rotated_dir = (dir + rotation_steps) % 4
+		var rotated_dir := (dir + rotation_steps) % 4
 		active.append(rotated_dir as Dir)
 	return active
+
+static func opposite_dir(dir: int) -> int:
+	return (dir + 2) % 4
+
+static func dir_to_vector(dir: int) -> Vector2i:
+	match dir:
+		Dir.NORTH: return Vector2i(0, -1)
+		Dir.EAST:  return Vector2i(1, 0)
+		Dir.SOUTH: return Vector2i(0, 1)
+		Dir.WEST:  return Vector2i(-1, 0)
+	return Vector2i.ZERO
+
+static func vector_to_dir(diff: Vector2i) -> int:
+	if diff == Vector2i(0, -1): return Dir.NORTH
+	if diff == Vector2i(1, 0):  return Dir.EAST
+	if diff == Vector2i(0, 1):  return Dir.SOUTH
+	if diff == Vector2i(-1, 0): return Dir.WEST
+	return -1
