@@ -19,9 +19,14 @@ var cursor_visual: MeshInstance3D
 var cursor_material: StandardMaterial3D
 var is_simulating: bool = false
 
+var tutorial_levels: Array[LevelConfig] = []
+var current_level_idx: int = 0
+
 func _ready() -> void:
-	drag_builder = TrackDragBuilder.new(grid_system)
+	tutorial_levels = LevelConfig.create_tutorial_levels()
+	grid_system.load_from_config(tutorial_levels[current_level_idx])
 	
+	drag_builder = TrackDragBuilder.new(grid_system)
 	_setup_board_collider()
 	_setup_camera()
 	_create_cursor_highlight()
@@ -118,8 +123,6 @@ func _on_train_completed() -> void:
 func _reset_simulation() -> void:
 	is_simulating = false
 	train.stop_run()
-	for w in train.wagons:
-		w.visible = false
 
 func _update_hovered_cell() -> void:
 	var mouse_pos := get_viewport().get_mouse_position()

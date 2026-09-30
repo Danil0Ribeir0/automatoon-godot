@@ -2,7 +2,7 @@ extends Node3D
 class_name GridSystem
 
 @export var grid_size: Vector2i = Vector2i(5, 5)
-@export var cell_size: float = 1.5
+@export var cell_size: float = 2.0
 @export var train_wagons: Array[String] = ["1"]
 
 var grid_data: Dictionary = {}
@@ -11,20 +11,36 @@ var tile_visuals: Dictionary = {}
 var spawn_coords: Vector2i = Vector2i(-1, 2)
 var exit_coords: Vector2i = Vector2i(5, 2)
 
-func _ready() -> void:
-	init_level()
-	rebuild_all_visuals()
-
-func init_level() -> void:
+# Carrega uma fase completa a partir de um LevelConfig
+func load_from_config(config: LevelConfig) -> void:
+	grid_size = config.grid_size
+	spawn_coords = config.spawn_coords
+	exit_coords = config.exit_coords
+	train_wagons = config.train_wagons.duplicate()
+	
+	# 1. Remove todos os modelos 3D da fase anterior
+	for node in tile_visuals.values():
+		if is_instance_valid(node):
+			node.queue_free()
+	tile_visuals.clear()
 	grid_data.clear()
 	
+	# 2. Cria as células vazias do tamanho exato da fase (5x5, 7x7, etc.)
 	for y in range(grid_size.y):
 		for x in range(grid_size.x):
 			grid_data[Vector2i(x, y)] = RailTileData.new(RailTileData.TileType.EMPTY)
-	
+			
+	# 3. Posiciona as estações fixas obrigatórias (usado na Fase 1 do Tutorial)
+	for coords in config.preplaced_stations.keys():
+		var sym: String = config.preplaced_stations[coords]
+		grid_data[coords] = RailTileData.new(RailTileData.TileType.STATION, 1, true, sym)
+		
+	# 4. Cria o SPAWN e o EXIT nas bordas configuradas
 	var spawn_label := "Trem:\n[" + ",".join(train_wagons) + "]"
 	grid_data[spawn_coords] = RailTileData.new(RailTileData.TileType.SPAWN, 3, true, spawn_label)
 	grid_data[exit_coords] = RailTileData.new(RailTileData.TileType.EXIT, 1, true, "FIM")
+	
+	rebuild_all_visuals()
 
 func grid_to_world(coords: Vector2i) -> Vector3:
 	return Vector3((coords.x + 0.5) * cell_size, 0.0, (coords.y + 0.5) * cell_size)
