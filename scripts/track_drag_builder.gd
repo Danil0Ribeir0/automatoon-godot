@@ -36,7 +36,6 @@ func step_build(new_coords: Vector2i) -> void:
 		_refresh_tile_in_path(drag_path.size() - 1)
 		return
 		
-	# 2. Garante movimento ortogonal (distância Manhattan == 1) e sem cruzar o próprio rastro
 	var diff: Vector2i = (new_coords - last_coords).abs()
 	if diff.x + diff.y != 1 or new_coords in drag_path:
 		return

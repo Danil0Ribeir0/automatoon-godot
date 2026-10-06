@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://8toefpoapeim"]
+
+[ext_resource type="Script" uid="uid://paqdcdjcehns" path="res://scripts/hud.gd" id="1_ahhtf"]
+
+[node name="HUD" type="CanvasLayer" unique_id=465910820]
+script = ExtResource("1_ahhtf")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1257957870]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_bottom = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1772968916]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="RailToolButton" type="Button" parent="MarginContainer/HBoxContainer" unique_id=90416436]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+focus_mode = 0
+text = "[1] Trilho"
+
+[node name="StationToolButton" type="Button" parent="MarginContainer/HBoxContainer" unique_id=545332746]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+focus_mode = 0
+text = "[2] Estação"

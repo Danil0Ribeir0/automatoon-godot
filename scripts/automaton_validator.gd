@@ -2,7 +2,6 @@ class_name AutomatonValidator
 extends RefCounted
 
 static func validate_path(grid_data: Dictionary, spawn_coords: Vector2i, expected_wagons: Array[String]) -> Dictionary:
-	print("\n--- INICIANDO VALIDAÇÃO DO AUTÔMATO ---")
 	print("Palavra esperada (Vagões): ", expected_wagons)
 	
 	var current_coords: Vector2i = spawn_coords

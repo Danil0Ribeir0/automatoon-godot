@@ -27,7 +27,6 @@ func spawn_train(symbols: Array[String], curve: Curve3D) -> void:
 		wagons.append(w)
 
 func start_run() -> void:
-	# Distância total = tamanho da pista + comprimento da fila de vagões
 	var total_dist := train_path.curve.get_baked_length() + (wagons.size() - 1) * wagon_spacing
 	
 	move_tween = create_tween()

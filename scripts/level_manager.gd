@@ -9,6 +9,7 @@ enum BuildTool { RAIL, STATION }
 
 @onready var rail_btn: Button = $HUD/MarginContainer/HBoxContainer/RailToolButton
 @onready var station_btn: Button = $HUD/MarginContainer/HBoxContainer/StationToolButton
+@onready var hud: GameHUD = $HUD
 
 var drag_builder: TrackDragBuilder
 var current_tool: BuildTool = BuildTool.RAIL
@@ -24,18 +25,22 @@ var current_level_idx: int = 0
 
 func _ready() -> void:
 	tutorial_levels = LevelConfig.create_tutorial_levels()
-	grid_system.load_from_config(tutorial_levels[current_level_idx])
-	
 	drag_builder = TrackDragBuilder.new(grid_system)
-	_setup_board_collider()
-	_setup_camera()
 	_create_cursor_highlight()
 	
 	train.arrived_at_exit.connect(_on_train_completed)
-	rail_btn.pressed.connect(func(): select_tool(BuildTool.RAIL))
-	station_btn.pressed.connect(func(): select_tool(BuildTool.STATION))
+	hud.tool_changed.connect(_on_hud_tool_changed)
 	
-	select_tool(BuildTool.RAIL)
+	load_level(0)
+
+func load_level(idx: int) -> void:
+	current_level_idx = idx
+	var config: LevelConfig = tutorial_levels[current_level_idx]
+	
+	grid_system.load_from_config(config)
+	_setup_board_collider()
+	_setup_camera()
+	hud.setup_for_level(config)
 
 func _process(_delta: float) -> void:
 	var previous_coords := hovered_coords
@@ -63,9 +68,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_1 or event.keycode == KEY_KP_1:
-			select_tool(BuildTool.RAIL)
+			hud.select_rail_tool()
 		elif event.keycode == KEY_2 or event.keycode == KEY_KP_2:
-			select_tool(BuildTool.STATION)
+			hud.select_or_cycle_station_tool()
 			
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
@@ -83,20 +88,19 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				drag_builder.stop_erase()
 
-func select_tool(new_tool: BuildTool) -> void:
-	current_tool = new_tool
+func _on_hud_tool_changed(is_station_tool: bool, station_symbol: String) -> void:
 	drag_builder.cancel_all()
+	current_station_symbol = station_symbol
 	
-	if current_tool == BuildTool.RAIL:
-		rail_btn.modulate = Color(0.4, 0.9, 1.0)
-		station_btn.modulate = Color(0.7, 0.7, 0.7)
+	if not is_station_tool:
+		current_tool = BuildTool.RAIL
 		if cursor_material:
 			cursor_material.albedo_color = Color(0.2, 0.8, 1.0, 0.35)
 	else:
-		rail_btn.modulate = Color(0.7, 0.7, 0.7)
-		station_btn.modulate = Color(1.0, 0.85, 0.2)
+		current_tool = BuildTool.STATION
 		if cursor_material:
-			cursor_material.albedo_color = Color(1.0, 0.8, 0.1, 0.45)
+			var sym_color := AutomataPalette.get_symbol_color(station_symbol)
+			cursor_material.albedo_color = Color(sym_color.r, sym_color.g, sym_color.b, 0.45)
 
 func _try_run_simulation() -> void:
 	drag_builder.cancel_all()
