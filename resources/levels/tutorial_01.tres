@@ -6,4 +6,5 @@
 
 [resource]
 script = ExtResource("1_5lka8")
+station_tool_enabled = false
 metadata/_custom_type_script = "uid://da6c07r64e8jd"
