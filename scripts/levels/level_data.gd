@@ -15,3 +15,9 @@ func get_spawn_cell() -> Vector2i:
 
 func get_exit_cell() -> Vector2i:
 	return Vector2i(grid_size.x, floori(grid_size.y / 2.0))
+
+func get_symbol_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for def in available_symbols:
+		ids.append(def.id)
+	return ids

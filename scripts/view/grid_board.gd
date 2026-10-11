@@ -66,7 +66,7 @@ func _sync_rail(cell: Vector2i) -> void:
 		return
 	var piece: RailPiece = _pieces.get(cell)
 	if piece == null:
-		piece = _spawn_view(rail_piece_scene, cell)
+		piece = _spawn_view(rail_piece_scene, cell) as RailPiece
 		_pieces[cell] = piece
 	piece.apply_shape(_model.get_shape(cell))
 
@@ -78,12 +78,18 @@ func _sync_station(cell: Vector2i) -> void:
 		return
 	var view: StationView = _station_views.get(cell)
 	if view == null:
-		view = _spawn_view(station_scene, cell)
+		view = _spawn_view(station_scene, cell) as StationView
+		if view == null:
+			push_error("Station.tscn: o nó raiz precisa ter station_view.gd anexado")
+			return
 		_station_views[cell] = view
 	view.apply(_symbol_lookup.get(station.symbol), _model.is_locked(cell))
 
 
 func _spawn_view(scene: PackedScene, cell: Vector2i) -> Node3D:
+	if scene == null:
+		push_error("GridBoard: cena não atribuída no Inspetor (célula %s)" % cell)
+		return null
 	var view: Node3D = scene.instantiate()
 	view.position = _cell_to_local(cell)
 	view.scale = Vector3.ONE * cell_size

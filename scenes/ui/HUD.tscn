@@ -1,11 +1,29 @@
 [gd_scene format=3 uid="uid://bisokon7vmmfw"]
 
 [ext_resource type="Script" uid="uid://dhgpsm2gau7v1" path="res://scripts/ui/hud.gd" id="1_kw0id"]
+[ext_resource type="PackedScene" uid="uid://dk3wuxcfkmg6v" path="res://scenes/ui/ToolButton.tscn" id="2_atyv1"]
 
 [node name="Hud" type="CanvasLayer" unique_id=672626895]
 script = ExtResource("1_kw0id")
 
 [node name="ToolBar" type="HBoxContainer" parent="." unique_id=24715922]
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
 mouse_filter = 2
+theme_override_constants/separation = 40
+
+[node name="RailButton" parent="ToolBar" unique_id=1884159099 instance=ExtResource("2_atyv1")]
+layout_mode = 2
+text = "Trilho"
+
+[node name="StationButton" parent="ToolBar" unique_id=225599295 instance=ExtResource("2_atyv1")]
+layout_mode = 2
+text = "Estação"
+key_hint = "2"
+show_symbol_badge = true

@@ -1,7 +1,12 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://dfvtv3xh7uwpy"]
 
 [ext_resource type="Script" uid="uid://da6c07r64e8jd" path="res://scripts/levels/level_data.gd" id="1_5h1jg"]
+[ext_resource type="Script" uid="uid://m0simrvj36vn" path="res://scripts/levels/symbol_definition.gd" id="1_crt54"]
+[ext_resource type="Resource" uid="uid://y5nnvhjd550j" path="res://resources/symbols/symbol_0.tres" id="2_6x2qt"]
+[ext_resource type="Resource" uid="uid://drqhgypurb7oi" path="res://resources/symbols/symbol_1.tres" id="3_h0f27"]
+[ext_resource type="Script" uid="uid://dhw7vdw0qgcfv" path="res://scripts/levels/station_placement.gd" id="4_7kmxl"]
 
 [resource]
 script = ExtResource("1_5h1jg")
+available_symbols = Array[ExtResource("1_crt54")]([ExtResource("2_6x2qt"), ExtResource("3_h0f27")])
 metadata/_custom_type_script = "uid://da6c07r64e8jd"

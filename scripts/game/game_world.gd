@@ -20,8 +20,8 @@ func _ready() -> void:
 	_board.setup(_model)
 	_apply_fixed_stations()
 
-	_router.setup(_model, level.station_tool_enabled)
-	_hud.setup(level.available_symbols, level.station_tool_enabled)
+	_router.setup(_model, level.station_tool_enabled, level.get_symbol_ids())
+	_hud.setup(level.get_symbol_ids(), level.station_tool_enabled)
 	_hud.tool_requested.connect(_router.request_tool)
 	_router.tool_changed.connect(_hud.show_active_tool)
 	_router.request_tool(ToolRouter.ToolId.RAIL)

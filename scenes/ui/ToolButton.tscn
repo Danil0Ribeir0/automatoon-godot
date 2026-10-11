@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dk3wuxcfkmg6v"]
+
+[ext_resource type="Script" uid="uid://cr8m33otwqngh" path="res://scripts/ui/tool_button.gd" id="1_hlv4c"]
+
+[node name="ToolButton" type="Button" unique_id=1884159099]
+custom_minimum_size = Vector2(180, 70)
+script = ExtResource("1_hlv4c")
