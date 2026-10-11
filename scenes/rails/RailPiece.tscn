@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://djgo7ml3073w8"]
+
+[ext_resource type="Script" uid="uid://bcjddrxwboscf" path="res://scripts/view/rail_piece.gd" id="1_1mmq7"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_pr1q8"]
+size = Vector3(0.2, 0.1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jamks"]
+size = Vector3(0.2, 0.1, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h64yi"]
+size = Vector3(0.6, 0.1, 0.2)
+
+[node name="RailPiece" type="Node3D" unique_id=71048651]
+script = ExtResource("1_1mmq7")
+
+[node name="Straight" type="MeshInstance3D" parent="." unique_id=1844755321]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+visible = false
+mesh = SubResource("BoxMesh_pr1q8")
+
+[node name="Curve" type="Node3D" parent="." unique_id=777394804]
+
+[node name="ArmNorth" type="MeshInstance3D" parent="Curve" unique_id=2085502669]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.2)
+mesh = SubResource("BoxMesh_jamks")
+
+[node name="ArmEast" type="MeshInstance3D" parent="Curve" unique_id=932142397]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.05, 0)
+mesh = SubResource("BoxMesh_h64yi")

@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://ci2tvrhc2ba3p" path="res://scripts/view/grid_board.gd" id="2_5ci18"]
 [ext_resource type="Resource" uid="uid://cuhtg8her4ovw" path="res://resources/levels/tutorial_01.tres" id="2_rxo1l"]
 [ext_resource type="Script" uid="uid://cspfyfcoja538" path="res://scripts/input/grid_picker.gd" id="4_earwm"]
+[ext_resource type="PackedScene" uid="uid://djgo7ml3073w8" path="res://scenes/rails/RailPiece.tscn" id="4_fa7sg"]
+[ext_resource type="Script" uid="uid://cmundalpj48p" path="res://scripts/input/input_controller.gd" id="5_earwm"]
 
 [node name="GameWorld" type="Node3D" unique_id=1206073556]
 script = ExtResource("1_gl70c")
@@ -16,12 +18,19 @@ transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.766
 
 [node name="GridBoard" type="Node3D" parent="." unique_id=313259158]
 script = ExtResource("2_5ci18")
+rail_piece_scene = ExtResource("4_fa7sg")
 
 [node name="Ground" type="MeshInstance3D" parent="GridBoard" unique_id=2092000359]
 
 [node name="Lines" type="MeshInstance3D" parent="GridBoard" unique_id=732779163]
 
+[node name="Cells" type="Node3D" parent="GridBoard" unique_id=1057939434]
+
 [node name="GridPicker" type="Node" parent="." unique_id=1832522419 node_paths=PackedStringArray("camera", "board")]
 script = ExtResource("4_earwm")
 camera = NodePath("../Camera3D")
 board = NodePath("../GridBoard")
+
+[node name="InputController" type="Node" parent="." unique_id=232334088 node_paths=PackedStringArray("picker")]
+script = ExtResource("5_earwm")
+picker = NodePath("../GridPicker")
