@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://dmrul5ifts6cx"]
+
+[ext_resource type="Script" uid="uid://dvp05xba2dlgg" path="res://scripts/game/game_world.gd" id="1_gl70c"]
+[ext_resource type="Script" uid="uid://ci2tvrhc2ba3p" path="res://scripts/view/grid_board.gd" id="2_5ci18"]
+[ext_resource type="Resource" uid="uid://cuhtg8her4ovw" path="res://resources/levels/tutorial_01.tres" id="2_rxo1l"]
+[ext_resource type="Script" uid="uid://cspfyfcoja538" path="res://scripts/input/grid_picker.gd" id="4_earwm"]
+
+[node name="GameWorld" type="Node3D" unique_id=1206073556]
+script = ExtResource("1_gl70c")
+level = ExtResource("2_rxo1l")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=893317081]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1533144184]
+transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 0, 0)
+
+[node name="GridBoard" type="Node3D" parent="." unique_id=313259158]
+script = ExtResource("2_5ci18")
+
+[node name="Ground" type="MeshInstance3D" parent="GridBoard" unique_id=2092000359]
+
+[node name="Lines" type="MeshInstance3D" parent="GridBoard" unique_id=732779163]
+
+[node name="GridPicker" type="Node" parent="." unique_id=1832522419 node_paths=PackedStringArray("camera", "board")]
+script = ExtResource("4_earwm")
+camera = NodePath("../Camera3D")
+board = NodePath("../GridBoard")
