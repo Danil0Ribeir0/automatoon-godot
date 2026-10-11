@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SymbolDefinition" format=3 uid="uid://drqhgypurb7oi"]
+
+[ext_resource type="Script" uid="uid://m0simrvj36vn" path="res://scripts/levels/symbol_definition.gd" id="1_i6oqk"]
+
+[resource]
+script = ExtResource("1_i6oqk")
+id = &"1"
+color = Color(0, 0.3833332, 1, 1)
+metadata/_custom_type_script = "uid://m0simrvj36vn"

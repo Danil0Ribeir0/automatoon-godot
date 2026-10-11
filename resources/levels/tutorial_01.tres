@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://cuhtg8her4ovw"]
 
 [ext_resource type="Script" uid="uid://da6c07r64e8jd" path="res://scripts/levels/level_data.gd" id="1_5lka8"]
+[ext_resource type="Script" uid="uid://m0simrvj36vn" path="res://scripts/levels/symbol_definition.gd" id="1_d5hdb"]
+[ext_resource type="Script" uid="uid://dhw7vdw0qgcfv" path="res://scripts/levels/station_placement.gd" id="2_3i3t5"]
 
 [resource]
 script = ExtResource("1_5lka8")

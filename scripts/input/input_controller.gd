@@ -1,10 +1,10 @@
 class_name InputController
 extends Node
 
-signal build_started(cell: Vector2i)
-signal erase_started(cell: Vector2i)
+signal primary_pressed(cell: Vector2i)
+signal secondary_pressed(cell: Vector2i)
 signal cursor_moved(cell: Vector2i)
-signal stroke_ended
+signal released
 
 @export var picker: GridPicker
 
@@ -32,10 +32,10 @@ func _handle_button(event: InputEventMouseButton) -> void:
 		_active_button = event.button_index
 		_last_cell = cell
 		if _active_button == MOUSE_BUTTON_LEFT:
-			build_started.emit(cell)
+			primary_pressed.emit(cell)
 		else:
-			erase_started.emit(cell)
+			secondary_pressed.emit(cell)
 	elif not event.pressed and event.button_index == _active_button:
 		_active_button = MOUSE_BUTTON_NONE
 		_last_cell = GridPicker.NO_CELL
-		stroke_ended.emit()
+		released.emit()

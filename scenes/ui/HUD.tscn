@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bisokon7vmmfw"]
+
+[ext_resource type="Script" uid="uid://dhgpsm2gau7v1" path="res://scripts/ui/hud.gd" id="1_kw0id"]
+
+[node name="Hud" type="CanvasLayer" unique_id=672626895]
+script = ExtResource("1_kw0id")
+
+[node name="ToolBar" type="HBoxContainer" parent="." unique_id=24715922]
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2

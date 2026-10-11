@@ -9,25 +9,33 @@ extends Node3D
 
 @onready var _board: GridBoard = $GridBoard
 @onready var _camera: Camera3D = $Camera3D
-@onready var _input: InputController = $InputController
+@onready var _router: ToolRouter = $ToolRouter
+@onready var _hud: HUD = $HUD
 
 var _model: GridModel
-var _builder: RailBuilder
 
 
 func _ready() -> void:
 	_model = GridModel.new(level.grid_size, level.get_spawn_cell(), level.get_exit_cell())
 	_board.setup(_model)
+	_apply_fixed_stations()
 
-	_builder = RailBuilder.new(_model)
-	_input.build_started.connect(_builder.begin_build)
-	_input.erase_started.connect(_builder.begin_erase)
-	_input.cursor_moved.connect(_builder.move_to)
-	_input.stroke_ended.connect(_builder.end_stroke)
+	_router.setup(_model, level.station_tool_enabled)
+	_hud.setup(level.available_symbols, level.station_tool_enabled)
+	_hud.tool_requested.connect(_router.request_tool)
+	_router.tool_changed.connect(_hud.show_active_tool)
+	_router.request_tool(ToolRouter.ToolId.RAIL)
 
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()
-
+	
+func _apply_fixed_stations() -> void:
+	for placement in level.fixed_stations:
+		if placement.symbol == null:
+			push_warning("Estação fixa sem símbolo em %s" % placement.cell)
+			continue
+		if _model.place_station(placement.cell, placement.symbol.id):
+			_model.lock_cell(placement.cell)
 
 func _fit_camera() -> void:
 	var extent := maxf(level.grid_size.x + 2, level.grid_size.y) * _board.cell_size

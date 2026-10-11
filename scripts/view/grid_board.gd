@@ -3,6 +3,8 @@ extends Node3D
 
 @export var cell_size: float = 1.0
 @export var rail_piece_scene: PackedScene
+@export var station_scene: PackedScene
+@export var symbols: Array[SymbolDefinition] = []
 
 @export_group("Cores")
 @export var ground_color := Color(0.78, 0.84, 0.78)
@@ -11,7 +13,9 @@ extends Node3D
 @export var exit_color := Color(0.75, 0.25, 0.2)
 
 var _model: GridModel
-var _pieces: Dictionary = {} # Vector2i -> RailPiece
+var _pieces: Dictionary = {}
+var _station_views: Dictionary = {}
+var _symbol_lookup: Dictionary = {}
 
 @onready var _ground: MeshInstance3D = $Ground
 @onready var _lines: MeshInstance3D = $Lines
@@ -20,6 +24,8 @@ var _pieces: Dictionary = {} # Vector2i -> RailPiece
 
 func setup(model: GridModel) -> void:
 	_model = model
+	for def in symbols:
+		_symbol_lookup[def.id] = def
 	_model.cell_changed.connect(_on_cell_changed)
 	_build_ground()
 	_build_lines()
@@ -50,19 +56,45 @@ func _cell_to_local(cell: Vector2i) -> Vector3:
 func _on_cell_changed(cell: Vector2i) -> void:
 	if _model.is_terminal(cell):
 		return
+	_sync_rail(cell)
+	_sync_station(cell)
+
+
+func _sync_rail(cell: Vector2i) -> void:
 	if not _model.has_rail(cell):
-		if _pieces.has(cell):
-			_pieces[cell].queue_free()
-			_pieces.erase(cell)
+		_free_view(_pieces, cell)
 		return
 	var piece: RailPiece = _pieces.get(cell)
 	if piece == null:
-		piece = rail_piece_scene.instantiate()
-		piece.position = _cell_to_local(cell)
-		piece.scale = Vector3.ONE * cell_size
-		_cells.add_child(piece)
+		piece = _spawn_view(rail_piece_scene, cell)
 		_pieces[cell] = piece
 	piece.apply_shape(_model.get_shape(cell))
+
+
+func _sync_station(cell: Vector2i) -> void:
+	var station := _model.get_station(cell)
+	if station == null:
+		_free_view(_station_views, cell)
+		return
+	var view: StationView = _station_views.get(cell)
+	if view == null:
+		view = _spawn_view(station_scene, cell)
+		_station_views[cell] = view
+	view.apply(_symbol_lookup.get(station.symbol), _model.is_locked(cell))
+
+
+func _spawn_view(scene: PackedScene, cell: Vector2i) -> Node3D:
+	var view: Node3D = scene.instantiate()
+	view.position = _cell_to_local(cell)
+	view.scale = Vector3.ONE * cell_size
+	_cells.add_child(view)
+	return view
+
+
+func _free_view(views: Dictionary, cell: Vector2i) -> void:
+	if views.has(cell):
+		views[cell].queue_free()
+		views.erase(cell)
 
 
 func _build_terminals() -> void:

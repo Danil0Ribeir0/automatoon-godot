@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://3k3hxgc0v5o6"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_pr1q8"]
+size = Vector3(0.9, 0.15, 0.9)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_h64yi"]
+top_radius = 0.2
+bottom_radius = 0.2
+height = 0.4
+
+[node name="Station" type="Node3D" unique_id=274982003]
+
+[node name="Plataform" type="MeshInstance3D" parent="." unique_id=134825303]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 0)
+mesh = SubResource("BoxMesh_pr1q8")
+
+[node name="Marker" type="MeshInstance3D" parent="." unique_id=175112993]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+mesh = SubResource("CylinderMesh_h64yi")
