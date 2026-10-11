@@ -2,6 +2,8 @@ class_name ToolRouter
 extends Node
 
 signal tool_changed(tool: int, symbol: StringName)
+## Estado do fantasma de colocação (BuildTool.Preview) na célula indicada.
+signal preview_changed(cell: Vector2i, state: int)
 
 enum ToolId { RAIL, STATION }
 
@@ -20,6 +22,7 @@ var _station_active := false
 var _primary: BuildTool
 ## Ferramenta do traço em andamento (null quando nenhum botão está pressionado).
 var _stroke_tool: BuildTool
+var _hover_cell := GridPicker.NO_CELL
 
 
 func setup(model: GridModel, station_enabled: bool, symbols: Array[StringName]) -> void:
@@ -34,6 +37,7 @@ func setup(model: GridModel, station_enabled: bool, symbols: Array[StringName]) 
 	input.secondary_pressed.connect(_begin_stroke.bind(false))
 	input.cursor_moved.connect(_on_cursor_moved)
 	input.released.connect(_on_released)
+	input.hover_changed.connect(_on_hover_changed)
 
 	input.rail_tool_requested.connect(func(): request_tool(ToolId.RAIL))
 	input.station_tool_requested.connect(func(): request_tool(ToolId.STATION))
@@ -62,6 +66,7 @@ func request_tool(tool: int, symbol: StringName = &"") -> void:
 		_:
 			return
 	tool_changed.emit(tool, _symbols[_symbol_index] if _station_active else &"")
+	_refresh_preview()
 
 
 func cycle_symbol(step: int) -> void:
@@ -73,6 +78,7 @@ func cycle_symbol(step: int) -> void:
 
 func _begin_stroke(cell: Vector2i, primary: bool) -> void:
 	_stroke_tool = _primary if primary else _eraser
+	_refresh_preview() # esconde o fantasma durante o traço
 	_stroke_tool.begin(cell)
 
 
@@ -85,3 +91,16 @@ func _on_released() -> void:
 	if _stroke_tool != null:
 		_stroke_tool.end_stroke()
 		_stroke_tool = null
+	# O preview reaparece no hover_changed que o InputController emite em seguida.
+
+
+func _on_hover_changed(cell: Vector2i) -> void:
+	_hover_cell = cell
+	_refresh_preview()
+
+
+func _refresh_preview() -> void:
+	var state := BuildTool.Preview.HIDDEN
+	if _stroke_tool == null and _hover_cell != GridPicker.NO_CELL:
+		state = _primary.preview(_hover_cell)
+	preview_changed.emit(_hover_cell, state)

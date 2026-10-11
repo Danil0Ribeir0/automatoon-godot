@@ -25,6 +25,7 @@ func _ready() -> void:
 	_hud.tool_requested.connect(_router.request_tool)
 	_router.tool_changed.connect(_hud.show_active_tool)
 	_router.request_tool(ToolRouter.ToolId.RAIL)
+	_router.preview_changed.connect(_board.show_preview)
 
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()
@@ -34,8 +35,10 @@ func _apply_fixed_stations() -> void:
 		if placement.symbol == null:
 			push_warning("Estação fixa sem símbolo em %s" % placement.cell)
 			continue
-		if _model.place_station(placement.cell, placement.symbol.id):
-			_model.lock_cell(placement.cell)
+		if not _model.place_station(placement.cell, placement.symbol.id):
+			push_warning("Estação fixa recusada em %s (fora da grid ou colada em outra estação)" % placement.cell)
+			continue
+		_model.lock_cell(placement.cell)
 
 func _fit_camera() -> void:
 	var extent := maxf(level.grid_size.x + 2, level.grid_size.y) * _board.cell_size

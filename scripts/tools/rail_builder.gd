@@ -32,7 +32,16 @@ func begin(cell: Vector2i) -> void:
 
 
 func move_to(target: Vector2i) -> void:
-	while _active and _trail.back() != target:
+	if not _active:
+		return
+	# Alvo já no rastro: desenrola até ele (independe do caminho do mouse).
+	# Estações ficam de fora: revisitá-las é cruzamento, não recuo.
+	var index := _trail.rfind(target)
+	if index != -1 and not _model.has_station(target):
+		while _trail.size() - 1 > index:
+			_undo_last()
+		return
+	while _trail.back() != target:
 		if not _build_step(step_toward(_trail.back(), target)):
 			break
 
@@ -64,8 +73,12 @@ func _build_step(next: Vector2i) -> bool:
 		_push(next, _model.connected_dirs(next), _model.get_shape(last), _model.get_shape(next))
 		return true
 
+	var keep: int = _protected.back()
+	if _trail.size() == 1:
+		keep = _cut_for_reroute(last, keep, dir)
+
 	var next_links := _model.connected_dirs(next)
-	var last_shape := _shape_toward(last, _protected.back(), dir)
+	var last_shape := _shape_toward(last, keep, dir)
 	var next_shape := _shape_toward(next, next_links, back)
 	if last_shape == NO_SHAPE or next_shape == NO_SHAPE:
 		return false
@@ -82,6 +95,17 @@ func _build_step(next: Vector2i) -> bool:
 
 	_push(next, next_links | back, last_before, next_before)
 	return true
+
+
+## Traço que começa num trilho do meio e sai por um lado livre:
+## larga o lado "depois" (rumo ao Exit) e mantém o lado do Spawn.
+## O formato anterior fica no rastro, então voltar à célula restaura a ligação.
+func _cut_for_reroute(cell: Vector2i, links: int, dir: int) -> int:
+	if not _model.has_rail(cell) or _model.is_terminal(cell):
+		return links
+	if GridModel.bit_count(links) != 2 or (links & dir) != 0:
+		return links
+	return links & ~RouteOrientation.after_dir(_model, cell)
 
 
 func _shape_toward(cell: Vector2i, keep: int, dir: int) -> int:

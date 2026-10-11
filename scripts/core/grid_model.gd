@@ -29,6 +29,13 @@ const SHAPE_CYCLE := [
 	Dir.WEST | Dir.NORTH,
 ]
 
+const CURVES := [
+	Dir.NORTH | Dir.EAST,
+	Dir.EAST | Dir.SOUTH,
+	Dir.SOUTH | Dir.WEST,
+	Dir.WEST | Dir.NORTH,
+]
+
 var size: Vector2i
 var spawn_cell: Vector2i
 var exit_cell: Vector2i
@@ -142,8 +149,13 @@ func set_shape(cell: Vector2i, shape: int) -> bool:
 func rotate_rail(cell: Vector2i) -> bool:
 	if not in_bounds(cell) or not has_rail(cell):
 		return false
-	var i := SHAPE_CYCLE.find(get_shape(cell))
-	return set_shape(cell, SHAPE_CYCLE[(i + 1) % SHAPE_CYCLE.size()])
+	var shape := get_shape(cell)
+	if shape == HORIZONTAL:
+		return set_shape(cell, VERTICAL)
+	if shape == VERTICAL:
+		return set_shape(cell, HORIZONTAL)
+	var i := CURVES.find(shape)
+	return set_shape(cell, CURVES[(i + 1) % CURVES.size()])
 
 
 func remove_rail(cell: Vector2i) -> bool:
@@ -154,9 +166,8 @@ func remove_rail(cell: Vector2i) -> bool:
 	return true
 
 
-## Substitui um trilho, se houver. Vizinhos que apontavam para ele seguem ligados.
 func place_station(cell: Vector2i, symbol: StringName) -> bool:
-	if not in_bounds(cell) or has_station(cell) or is_locked(cell):
+	if not can_place_station(cell):
 		return false
 	_shapes.erase(cell)
 	_stations[cell] = StationData.new(symbol)
@@ -197,3 +208,16 @@ func _inward_dir(cell: Vector2i) -> int:
 		if in_bounds(cell + DIR_OFFSETS[dir]):
 			return dir
 	return 0
+
+## Alguma das 4 células vizinhas (ortogonais) tem estação?
+func has_adjacent_station(cell: Vector2i) -> bool:
+	for dir in DIR_OFFSETS:
+		if has_station(cell + DIR_OFFSETS[dir]):
+			return true
+	return false
+
+
+## Regra: duas estações nunca ficam coladas. Entre elas há pelo menos um trilho.
+func can_place_station(cell: Vector2i) -> bool:
+	return in_bounds(cell) and not has_station(cell) and not is_locked(cell) \
+			and not has_adjacent_station(cell)
