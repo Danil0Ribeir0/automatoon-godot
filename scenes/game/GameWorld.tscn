@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dvp05xba2dlgg" path="res://scripts/game/game_world.gd" id="1_gl70c"]
 [ext_resource type="Script" uid="uid://ci2tvrhc2ba3p" path="res://scripts/view/grid_board.gd" id="2_5ci18"]
-[ext_resource type="Resource" uid="uid://cuhtg8her4ovw" path="res://resources/levels/tutorial_01.tres" id="2_mlbq7"]
+[ext_resource type="Resource" uid="uid://dfvtv3xh7uwpy" path="res://resources/levels/tutorial_02.tres" id="2_mlbq7"]
 [ext_resource type="Script" uid="uid://cspfyfcoja538" path="res://scripts/input/grid_picker.gd" id="4_earwm"]
 [ext_resource type="PackedScene" uid="uid://djgo7ml3073w8" path="res://scenes/rails/RailPiece.tscn" id="4_fa7sg"]
 [ext_resource type="Script" uid="uid://cmundalpj48p" path="res://scripts/input/input_controller.gd" id="5_earwm"]

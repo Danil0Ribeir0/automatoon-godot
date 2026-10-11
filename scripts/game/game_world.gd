@@ -25,6 +25,7 @@ func _ready() -> void:
 	_hud.tool_requested.connect(_router.request_tool)
 	_router.tool_changed.connect(_hud.show_active_tool)
 	_router.request_tool(ToolRouter.ToolId.RAIL)
+	_router.preview_changed.connect(_board.show_preview)
 
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()

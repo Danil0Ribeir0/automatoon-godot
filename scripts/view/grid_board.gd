@@ -4,6 +4,7 @@ extends Node3D
 @export var cell_size: float = 1.0
 @export var rail_piece_scene: PackedScene
 @export var station_scene: PackedScene
+## Alfabeto do jogo: cor de cada estação pelo símbolo.
 @export var symbols: Array[SymbolDefinition] = []
 
 @export_group("Cores")
@@ -11,11 +12,14 @@ extends Node3D
 @export var line_color := Color(0.15, 0.2, 0.15)
 @export var spawn_color := Color(0.2, 0.6, 0.3)
 @export var exit_color := Color(0.75, 0.25, 0.2)
+@export var ghost_valid_color := Color(0.3, 1.0, 0.4)
+@export var ghost_invalid_color := Color(1.0, 0.3, 0.3)
 
 var _model: GridModel
-var _pieces: Dictionary = {}
-var _station_views: Dictionary = {}
-var _symbol_lookup: Dictionary = {}
+var _pieces: Dictionary = {} # Vector2i -> RailPiece
+var _station_views: Dictionary = {} # Vector2i -> StationView
+var _symbol_lookup: Dictionary = {} # StringName -> SymbolDefinition
+var _preview: StationView
 
 @onready var _ground: MeshInstance3D = $Ground
 @onready var _lines: MeshInstance3D = $Lines
@@ -30,6 +34,7 @@ func setup(model: GridModel) -> void:
 	_build_ground()
 	_build_lines()
 	_build_terminals()
+	_create_preview()
 
 
 func cell_to_world(cell: Vector2i) -> Vector3:
@@ -45,6 +50,19 @@ func world_to_cell(world_pos: Vector3) -> Vector2i:
 		floori(local.z / cell_size + half.y))
 
 
+## Mostra ou esconde o fantasma de colocação (estado = BuildTool.Preview).
+func show_preview(cell: Vector2i, state: int) -> void:
+	if _preview == null:
+		return
+	if state == BuildTool.Preview.HIDDEN:
+		_preview.visible = false
+		return
+	_preview.position = _cell_to_local(cell)
+	_preview.apply_ghost(
+		ghost_valid_color if state == BuildTool.Preview.VALID else ghost_invalid_color)
+	_preview.visible = true
+
+
 func _cell_to_local(cell: Vector2i) -> Vector3:
 	var half := Vector2(_model.size) * 0.5
 	return Vector3(
@@ -52,6 +70,8 @@ func _cell_to_local(cell: Vector2i) -> Vector3:
 		0.0,
 		(cell.y + 0.5 - half.y) * cell_size)
 
+
+# --- Peças e estações ------------------------------------------------------
 
 func _on_cell_changed(cell: Vector2i) -> void:
 	if _model.is_terminal(cell):
@@ -67,6 +87,9 @@ func _sync_rail(cell: Vector2i) -> void:
 	var piece: RailPiece = _pieces.get(cell)
 	if piece == null:
 		piece = _spawn_view(rail_piece_scene, cell) as RailPiece
+		if piece == null:
+			push_error("RailPiece.tscn: o nó raiz precisa ter rail_piece.gd anexado")
+			return
 		_pieces[cell] = piece
 	piece.apply_shape(_model.get_shape(cell))
 
@@ -103,7 +126,26 @@ func _free_view(views: Dictionary, cell: Vector2i) -> void:
 		views.erase(cell)
 
 
+# --- Fantasma --------------------------------------------------------------
+
+func _create_preview() -> void:
+	if station_scene == null:
+		push_error("GridBoard: 'Station Scene' não atribuída; o preview não será criado")
+		return
+	_preview = station_scene.instantiate() as StationView
+	if _preview == null:
+		push_error("Station.tscn: o nó raiz precisa ter station_view.gd anexado")
+		return
+	_preview.name = "PlacementPreview"
+	_preview.scale = Vector3.ONE * cell_size
+	_preview.visible = false
+	add_child(_preview)
+
+
+# --- Visual do tabuleiro ---------------------------------------------------
+
 func _build_terminals() -> void:
+	# Placeholder: vira Spawn.tscn/Exit.tscn (túneis) numa etapa futura.
 	_add_marker(_model.spawn_cell, spawn_color)
 	_add_marker(_model.exit_cell, exit_color)
 
