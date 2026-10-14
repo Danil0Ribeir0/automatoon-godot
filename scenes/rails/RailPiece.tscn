@@ -1,30 +1,14 @@
 [gd_scene format=3 uid="uid://djgo7ml3073w8"]
 
 [ext_resource type="Script" uid="uid://bcjddrxwboscf" path="res://scripts/view/rail_piece.gd" id="1_1mmq7"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_pr1q8"]
-size = Vector3(0.2, 0.1, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_jamks"]
-size = Vector3(0.2, 0.1, 0.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_h64yi"]
-size = Vector3(0.6, 0.1, 0.2)
+[ext_resource type="PackedScene" uid="uid://dt1fpgt5hkk1h" path="res://scenes/rails/trilhoReto.glb" id="2_dcqii"]
+[ext_resource type="PackedScene" uid="uid://ceyier4fmxu5b" path="res://scenes/rails/trilho_curvo1.glb" id="3_5jtkf"]
 
 [node name="RailPiece" type="Node3D" unique_id=71048651]
 script = ExtResource("1_1mmq7")
 
-[node name="Straight" type="MeshInstance3D" parent="." unique_id=1844755321]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
-visible = false
-mesh = SubResource("BoxMesh_pr1q8")
+[node name="Straight" parent="." unique_id=579881988 instance=ExtResource("2_dcqii")]
+transform = Transform3D(0.88, 0, 0, 0, 1.08, 0, 0, 0, 0.99, 0, 0.04, 0)
 
-[node name="Curve" type="Node3D" parent="." unique_id=777394804]
-
-[node name="ArmNorth" type="MeshInstance3D" parent="Curve" unique_id=2085502669]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.2)
-mesh = SubResource("BoxMesh_jamks")
-
-[node name="ArmEast" type="MeshInstance3D" parent="Curve" unique_id=932142397]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.05, 0)
-mesh = SubResource("BoxMesh_h64yi")
+[node name="Curve" parent="." unique_id=1985478187 instance=ExtResource("3_5jtkf")]
+transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5, -1.4, 0, -0.5)
