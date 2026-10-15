@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dnsffvk5aexad"
-path="res://.godot/imported/trilho_reto.glb-30b9859ec75d2e6706b9918336ac7711.scn"
+uid="uid://ds0a54d33jhj2"
+path="res://.godot/imported/trilhoCurvo.glb-1661602be0cab6562cf040bf9073a28e.scn"
 
 [deps]
 
-source_file="res://scenes/rails/trilho_reto.glb"
-dest_files=["res://.godot/imported/trilho_reto.glb-30b9859ec75d2e6706b9918336ac7711.scn"]
+source_file="res://scenes/rails/trilhoCurvo.glb"
+dest_files=["res://.godot/imported/trilhoCurvo.glb-1661602be0cab6562cf040bf9073a28e.scn"]
 
 [params]
 
