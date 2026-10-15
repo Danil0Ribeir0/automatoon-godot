@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://ceyier4fmxu5b"
-path="res://.godot/imported/trilho_curvo1.glb-fca595ae17f8bdd7493146b85fcfe323.scn"
+uid="uid://hp3abww06mii"
+path="res://.godot/imported/trilhoCurvo.glb-1661602be0cab6562cf040bf9073a28e.scn"
 
 [deps]
 
-source_file="res://scenes/rails/trilho_curvo1.glb"
-dest_files=["res://.godot/imported/trilho_curvo1.glb-fca595ae17f8bdd7493146b85fcfe323.scn"]
+source_file="res://scenes/rails/trilhoCurvo.glb"
+dest_files=["res://.godot/imported/trilhoCurvo.glb-1661602be0cab6562cf040bf9073a28e.scn"]
 
 [params]
 
@@ -19,7 +19,7 @@ nodes/root_script=null
 mesh_library/use_node_names_as_mesh_names=false
 array_mesh/deduplicate_surfaces=true
 nodes/apply_root_scale=true
-nodes/root_scale=0.1
+nodes/root_scale=1.0
 nodes/import_as_skeleton_bones=false
 nodes/use_name_suffixes=true
 nodes/use_node_type_suffixes=true
@@ -42,4 +42,4 @@ materials/extract_path=""
 _subresources={}
 gltf/naming_version=2
 gltf/embedded_image_handling=1
-gltf/texture_map_mode=1
+gltf/texture_map_mode=0

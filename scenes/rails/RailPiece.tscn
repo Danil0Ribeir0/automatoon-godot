@@ -1,14 +1,18 @@
 [gd_scene format=3 uid="uid://djgo7ml3073w8"]
 
 [ext_resource type="Script" uid="uid://bcjddrxwboscf" path="res://scripts/view/rail_piece.gd" id="1_1mmq7"]
-[ext_resource type="PackedScene" uid="uid://dt1fpgt5hkk1h" path="res://scenes/rails/trilhoReto.glb" id="2_dcqii"]
-[ext_resource type="PackedScene" uid="uid://ceyier4fmxu5b" path="res://scenes/rails/trilho_curvo1.glb" id="3_5jtkf"]
+[ext_resource type="PackedScene" uid="uid://bit2w0gaywxk" path="res://scenes/rails/trilhoReto.glb" id="2_dcqii"]
+[ext_resource type="PackedScene" uid="uid://hp3abww06mii" path="res://scenes/rails/trilhoCurvo.glb" id="3_4kyeh"]
 
 [node name="RailPiece" type="Node3D" unique_id=71048651]
 script = ExtResource("1_1mmq7")
 
-[node name="Straight" parent="." unique_id=579881988 instance=ExtResource("2_dcqii")]
-transform = Transform3D(0.88, 0, 0, 0, 1.08, 0, 0, 0, 0.99, 0, 0.04, 0)
+[node name="Straight" type="Node3D" parent="." unique_id=2125732892]
+transform = Transform3D(0.85, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 
-[node name="Curve" parent="." unique_id=1985478187 instance=ExtResource("3_5jtkf")]
-transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5, -1.4, 0, -0.5)
+[node name="Straight" parent="Straight" unique_id=263388045 instance=ExtResource("2_dcqii")]
+
+[node name="Curve" type="Node3D" parent="." unique_id=1208112658]
+transform = Transform3D(-1, 0, 1.04907336e-07, 0, 1, 0, -8.742278e-08, 0, -1.2, 0.15, 0.04, -0.12)
+
+[node name="Curve" parent="Curve" unique_id=1834218188 instance=ExtResource("3_4kyeh")]
