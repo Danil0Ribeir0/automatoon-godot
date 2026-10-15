@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bcjddrxwboscf" path="res://scripts/view/rail_piece.gd" id="1_1mmq7"]
 [ext_resource type="PackedScene" uid="uid://bit2w0gaywxk" path="res://scenes/rails/trilhoReto.glb" id="2_dcqii"]
-[ext_resource type="PackedScene" uid="uid://ds0a54d33jhj2" path="res://scenes/rails/trilhoCurvo.glb" id="3_4kyeh"]
+[ext_resource type="PackedScene" uid="uid://hp3abww06mii" path="res://scenes/rails/trilhoCurvo.glb" id="3_4kyeh"]
 
 [node name="RailPiece" type="Node3D" unique_id=71048651]
 script = ExtResource("1_1mmq7")

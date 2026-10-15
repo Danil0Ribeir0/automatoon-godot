@@ -3,23 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-<<<<<<<< HEAD:scenes/rails/trilhoCurvo.glb.import
-uid="uid://ds0a54d33jhj2"
+uid="uid://hp3abww06mii"
 path="res://.godot/imported/trilhoCurvo.glb-1661602be0cab6562cf040bf9073a28e.scn"
 
 [deps]
 
 source_file="res://scenes/rails/trilhoCurvo.glb"
 dest_files=["res://.godot/imported/trilhoCurvo.glb-1661602be0cab6562cf040bf9073a28e.scn"]
-========
-uid="uid://dt1fpgt5hkk1h"
-path="res://.godot/imported/trilhoReto.glb-e6c259b2454c44270f3bbc118cea2208.scn"
-
-[deps]
-
-source_file="res://scenes/rails/trilhoReto.glb"
-dest_files=["res://.godot/imported/trilhoReto.glb-e6c259b2454c44270f3bbc118cea2208.scn"]
->>>>>>>> origin/main:scenes/rails/trilhoReto.glb.import
 
 [params]
 
@@ -52,4 +42,4 @@ materials/extract_path=""
 _subresources={}
 gltf/naming_version=2
 gltf/embedded_image_handling=1
-gltf/texture_map_mode=1
+gltf/texture_map_mode=0
