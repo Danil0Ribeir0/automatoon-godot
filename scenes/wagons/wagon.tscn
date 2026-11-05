@@ -1,0 +1,173 @@
+[gd_scene format=3 uid="uid://u536nblkici3"]
+
+[ext_resource type="Script" path="res://scripts/train/wagon_view.gd" id="1_wview"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_st6rn"]
+size = Vector3(0.3, 0.03, 0.56)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_h64yi"]
+top_radius = 0.025
+bottom_radius = 0.025
+height = 0.04
+radial_segments = 6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pr1q8"]
+top_radius = 0.05
+bottom_radius = 0.05
+height = 0.03
+radial_segments = 8
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_jamks"]
+top_radius = 0.058
+bottom_radius = 0.058
+height = 0.006
+radial_segments = 8
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_pr1q8"]
+size = Vector3(0.4, 0.025, 0.52)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jamks"]
+size = Vector3(0.02, 0.12, 0.52)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h64yi"]
+size = Vector3(0.36, 0.12, 0.02)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jss8b"]
+size = Vector3(0.012, 0.12, 0.025)
+
+[node name="Wagon" type="Node3D" unique_id=1794178958]
+script = ExtResource("1_wview")
+
+[node name="Chassis" type="Node3D" parent="." unique_id=398586858]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.047, 0)
+
+[node name="Undercarriage" type="Node3D" parent="Chassis" unique_id=1668057520]
+
+[node name="Frame" type="MeshInstance3D" parent="Chassis/Undercarriage" unique_id=975618227]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.095, 0)
+mesh = SubResource("BoxMesh_st6rn")
+
+[node name="BufferFL" type="MeshInstance3D" parent="Chassis/Undercarriage" unique_id=477386664]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.11, 0.123, 0.28)
+mesh = SubResource("CylinderMesh_h64yi")
+
+[node name="BufferFR" type="MeshInstance3D" parent="Chassis/Undercarriage" unique_id=1017362141]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.11, 0.123, 0.28)
+mesh = SubResource("CylinderMesh_h64yi")
+
+[node name="BufferRL" type="MeshInstance3D" parent="Chassis/Undercarriage" unique_id=1469129645]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0.11, 0.123, -0.28)
+mesh = SubResource("CylinderMesh_h64yi")
+
+[node name="BufferRR" type="MeshInstance3D" parent="Chassis/Undercarriage" unique_id=1567583491]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.11, 0.123, -0.28)
+mesh = SubResource("CylinderMesh_h64yi")
+
+[node name="Wheels" type="Node3D" parent="Chassis" unique_id=478785017]
+
+[node name="Wheel_R1" type="Node3D" parent="Chassis/Wheels" unique_id=925179461]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.172, 0.05, -0.15)
+
+[node name="Tire" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_R1" unique_id=350891236]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_pr1q8")
+
+[node name="Flange" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_R1" unique_id=1262655801]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.018, 0, 0)
+mesh = SubResource("CylinderMesh_jamks")
+
+[node name="Wheel_R2" type="Node3D" parent="Chassis/Wheels" unique_id=939269948]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.172, 0.05, 0.15)
+
+[node name="Tire" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_R2" unique_id=1657773134]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_pr1q8")
+
+[node name="Flange" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_R2" unique_id=142770879]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.018, 0, 0)
+mesh = SubResource("CylinderMesh_jamks")
+
+[node name="Wheel_L1" type="Node3D" parent="Chassis/Wheels" unique_id=60523671]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.172, 0.05, -0.15)
+
+[node name="Tire" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_L1" unique_id=1330051606]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_pr1q8")
+
+[node name="Flange" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_L1" unique_id=24241697]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.018, 0, 0)
+mesh = SubResource("CylinderMesh_jamks")
+
+[node name="Wheel_L2" type="Node3D" parent="Chassis/Wheels" unique_id=265809268]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.172, 0.05, 0.15)
+
+[node name="Tire" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_L2" unique_id=1468850374]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_pr1q8")
+
+[node name="Flange" type="MeshInstance3D" parent="Chassis/Wheels/Wheel_L2" unique_id=475225486]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -0.018, 0, 0)
+mesh = SubResource("CylinderMesh_jamks")
+
+[node name="Hull" type="Node3D" parent="Chassis" unique_id=1307923845]
+
+[node name="Deck" type="MeshInstance3D" parent="Chassis/Hull" unique_id=561443513]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.123, 0)
+mesh = SubResource("BoxMesh_pr1q8")
+
+[node name="WallLeft" type="MeshInstance3D" parent="Chassis/Hull" unique_id=1297796497]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.19, 0.195, 0)
+mesh = SubResource("BoxMesh_jamks")
+
+[node name="WallRight" type="MeshInstance3D" parent="Chassis/Hull" unique_id=1265547443]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 0.195, 0)
+mesh = SubResource("BoxMesh_jamks")
+
+[node name="WallFront" type="MeshInstance3D" parent="Chassis/Hull" unique_id=1097997803]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.195, 0.25)
+mesh = SubResource("BoxMesh_h64yi")
+
+[node name="WallRear" type="MeshInstance3D" parent="Chassis/Hull" unique_id=1014294714]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.195, -0.25)
+mesh = SubResource("BoxMesh_h64yi")
+
+[node name="Ribs" type="Node3D" parent="Chassis" unique_id=849799250]
+
+[node name="RibsRight" type="Node3D" parent="Chassis/Ribs" unique_id=1997590332]
+
+[node name="Rib1" type="MeshInstance3D" parent="Chassis/Ribs/RibsRight" unique_id=526375067]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.206, 0.195, -0.18)
+mesh = SubResource("BoxMesh_jss8b")
+
+[node name="Rib2" type="MeshInstance3D" parent="Chassis/Ribs/RibsRight" unique_id=1328182484]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.206, 0.195, 0)
+mesh = SubResource("BoxMesh_jss8b")
+
+[node name="Rib3" type="MeshInstance3D" parent="Chassis/Ribs/RibsRight" unique_id=1975888378]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.206, 0.195, 0.18)
+mesh = SubResource("BoxMesh_jss8b")
+
+[node name="RibsLeft" type="Node3D" parent="Chassis/Ribs" unique_id=1952766944]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="Rib1" type="MeshInstance3D" parent="Chassis/Ribs/RibsLeft" unique_id=1671857990]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.206, 0.195, -0.18)
+mesh = SubResource("BoxMesh_jss8b")
+
+[node name="Rib2" type="MeshInstance3D" parent="Chassis/Ribs/RibsLeft" unique_id=374746346]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.206, 0.195, 0)
+mesh = SubResource("BoxMesh_jss8b")
+
+[node name="Rib3" type="MeshInstance3D" parent="Chassis/Ribs/RibsLeft" unique_id=1645494774]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.206, 0.195, 0.18)
+mesh = SubResource("BoxMesh_jss8b")
+
+[node name="SymbolLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+pixel_size = 0.005
+billboard = 1
+text = "?"
+font_size = 48
+outline_size = 12

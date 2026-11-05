@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://scenes/scenery/RuralScenery.tscn" id="10_scen"]
 [ext_resource type="PackedScene" path="res://scenes/obstacles/Obstacle.tscn" id="11_obst"]
 [ext_resource type="PackedScene" path="res://scenes/terminals/Depot.tscn" id="12_tunnel"]
+[ext_resource type="PackedScene" path="res://scenes/switches/Switch.tscn" id="13_switch"]
 
 [node name="GameWorld" type="Node3D" unique_id=1206073556]
 script = ExtResource("1_gl70c")
@@ -34,6 +35,7 @@ rail_piece_scene = ExtResource("4_fa7sg")
 station_scene = ExtResource("5_mlbq7")
 obstacle_scene = ExtResource("11_obst")
 terminal_scene = ExtResource("12_tunnel")
+switch_scene = ExtResource("13_switch")
 symbols = Array[ExtResource("6_xvcxa")]([ExtResource("7_w0kxl"), ExtResource("8_b4r4x")])
 
 [node name="Ground" type="MeshInstance3D" parent="GridBoard" unique_id=2092000359]

@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/view/rural_scenery.gd" id="1_scen"]
+[ext_resource type="PackedScene" uid="uid://djgo7ml3073w8" path="res://scenes/rails/RailPiece.tscn" id="2_rail"]
+
+[node name="RuralScenery" type="Node3D"]
+script = ExtResource("1_scen")
+rail_scene = ExtResource("2_rail")

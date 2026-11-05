@@ -1,0 +1,181 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/view/terminal_view.gd" id="1_term"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_post"]
+albedo_color = Color(0.54, 0.39, 0.25, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_beam"]
+albedo_color = Color(0.44, 0.3, 0.19, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_roof"]
+albedo_color = Color(0.6, 0.43, 0.27, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_roof_dark"]
+albedo_color = Color(0.37, 0.25, 0.16, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_stone"]
+albedo_color = Color(0.58, 0.56, 0.52, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rope"]
+albedo_color = Color(0.78, 0.68, 0.48, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_trim"]
+albedo_color = Color(1, 1, 1, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_pillar"]
+material = SubResource("Mat_post")
+size = Vector3(0.07, 0.62, 0.07)
+
+[sub_resource type="BoxMesh" id="Mesh_base"]
+material = SubResource("Mat_stone")
+size = Vector3(0.12, 0.05, 0.12)
+
+[sub_resource type="BoxMesh" id="Mesh_beam_x"]
+material = SubResource("Mat_beam")
+size = Vector3(0.9, 0.06, 0.07)
+
+[sub_resource type="BoxMesh" id="Mesh_beam_z"]
+material = SubResource("Mat_beam")
+size = Vector3(0.07, 0.06, 0.84)
+
+[sub_resource type="PrismMesh" id="Mesh_roof"]
+material = SubResource("Mat_roof")
+size = Vector3(1.04, 0.28, 0.96)
+
+[sub_resource type="BoxMesh" id="Mesh_ridge"]
+material = SubResource("Mat_roof_dark")
+size = Vector3(0.06, 0.04, 1.0)
+
+[sub_resource type="BoxMesh" id="Mesh_eave"]
+material = SubResource("Mat_roof_dark")
+size = Vector3(1.04, 0.025, 0.03)
+
+[sub_resource type="BoxMesh" id="Mesh_rope"]
+material = SubResource("Mat_rope")
+size = Vector3(0.012, 0.06, 0.012)
+
+[sub_resource type="BoxMesh" id="Mesh_board"]
+material = SubResource("Mat_trim")
+size = Vector3(0.34, 0.1, 0.02)
+
+[sub_resource type="BoxMesh" id="Mesh_lantern"]
+size = Vector3(0.06, 0.07, 0.06)
+
+[node name="Depot" type="Node3D"]
+script = ExtResource("1_term")
+
+[node name="Pillars" type="Node3D" parent="."]
+
+[node name="BaseNE" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.025, -0.36)
+mesh = SubResource("Mesh_base")
+
+[node name="BaseNW" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.025, -0.36)
+mesh = SubResource("Mesh_base")
+
+[node name="BaseSE" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.025, 0.36)
+mesh = SubResource("Mesh_base")
+
+[node name="BaseSW" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.025, 0.36)
+mesh = SubResource("Mesh_base")
+
+[node name="PillarNE" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.33, -0.36)
+mesh = SubResource("Mesh_pillar")
+
+[node name="PillarNW" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.33, -0.36)
+mesh = SubResource("Mesh_pillar")
+
+[node name="PillarSE" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.33, 0.36)
+mesh = SubResource("Mesh_pillar")
+
+[node name="PillarSW" type="MeshInstance3D" parent="Pillars"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.33, 0.36)
+mesh = SubResource("Mesh_pillar")
+
+[node name="Beams" type="Node3D" parent="."]
+
+[node name="BeamN" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.67, -0.36)
+mesh = SubResource("Mesh_beam_x")
+
+[node name="BeamS" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.67, 0.36)
+mesh = SubResource("Mesh_beam_x")
+
+[node name="BeamE" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.73, 0)
+mesh = SubResource("Mesh_beam_z")
+
+[node name="BeamW" type="MeshInstance3D" parent="Beams"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.73, 0)
+mesh = SubResource("Mesh_beam_z")
+
+[node name="Roof" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("Mesh_roof")
+
+[node name="Ridge" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.045, 0)
+mesh = SubResource("Mesh_ridge")
+
+[node name="EaveS" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.765, 0.48)
+mesh = SubResource("Mesh_eave")
+
+[node name="EaveN" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.765, -0.48)
+mesh = SubResource("Mesh_eave")
+
+[node name="RopeSA" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.61, 0.4)
+mesh = SubResource("Mesh_rope")
+
+[node name="RopeSB" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.61, 0.4)
+mesh = SubResource("Mesh_rope")
+
+[node name="RopeNA" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.61, -0.4)
+mesh = SubResource("Mesh_rope")
+
+[node name="RopeNB" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.61, -0.4)
+mesh = SubResource("Mesh_rope")
+
+[node name="Trims" type="Node3D" parent="."]
+
+[node name="BoardS" type="MeshInstance3D" parent="Trims"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.54, 0.4)
+mesh = SubResource("Mesh_board")
+
+[node name="BoardN" type="MeshInstance3D" parent="Trims"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.54, -0.4)
+mesh = SubResource("Mesh_board")
+
+[node name="Lamp" type="Node3D" parent="."]
+
+[node name="Light" type="MeshInstance3D" parent="Lamp"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.6, 0.36)
+mesh = SubResource("Mesh_lantern")
+
+[node name="Sign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+pixel_size = 0.003
+billboard = 1
+text = "Partida"
+font_size = 48
+outline_size = 14

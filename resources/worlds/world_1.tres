@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WorldData" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/world_data.gd" id="1_wd"]
+[ext_resource type="Script" uid="uid://da6c07r64e8jd" path="res://scripts/levels/level_data.gd" id="2_ld"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_01.tres" id="L01"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_02.tres" id="L02"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_03.tres" id="L03"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_04.tres" id="L04"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_05.tres" id="L05"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_06.tres" id="L06"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_07.tres" id="L07"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_08.tres" id="L08"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_09.tres" id="L09"]
+[ext_resource type="Resource" path="res://resources/levels/world_1/level_10.tres" id="L10"]
+
+[resource]
+script = ExtResource("1_wd")
+id = &"world_1"
+title = "Fazenda"
+levels = Array[ExtResource("2_ld")]([ExtResource("L01"), ExtResource("L02"), ExtResource("L03"), ExtResource("L04"), ExtResource("L05"), ExtResource("L06"), ExtResource("L07"), ExtResource("L08"), ExtResource("L09"), ExtResource("L10")])

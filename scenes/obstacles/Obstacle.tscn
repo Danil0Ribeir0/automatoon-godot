@@ -1,0 +1,141 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/view/obstacle_view.gd" id="1_obst"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_patch"]
+albedo_color = Color(0.55, 0.45, 0.32, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock"]
+albedo_color = Color(0.6, 0.6, 0.57, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock_dark"]
+albedo_color = Color(0.47, 0.47, 0.45, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_bark"]
+albedo_color = Color(0.42, 0.29, 0.18, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_cut"]
+albedo_color = Color(0.82, 0.66, 0.44, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_hay"]
+albedo_color = Color(0.89, 0.76, 0.4, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_hay_dark"]
+albedo_color = Color(0.78, 0.64, 0.3, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_patch"]
+material = SubResource("Mat_patch")
+size = Vector3(0.9, 0.012, 0.9)
+
+[sub_resource type="SphereMesh" id="Mesh_rock_big"]
+material = SubResource("Mat_rock")
+radius = 0.22
+height = 0.28
+radial_segments = 6
+rings = 3
+
+[sub_resource type="SphereMesh" id="Mesh_rock_mid"]
+material = SubResource("Mat_rock_dark")
+radius = 0.15
+height = 0.2
+radial_segments = 5
+rings = 3
+
+[sub_resource type="SphereMesh" id="Mesh_rock_small"]
+material = SubResource("Mat_rock")
+radius = 0.09
+height = 0.12
+radial_segments = 5
+rings = 2
+
+[sub_resource type="CylinderMesh" id="Mesh_stump"]
+material = SubResource("Mat_bark")
+top_radius = 0.17
+bottom_radius = 0.22
+height = 0.22
+radial_segments = 7
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_stump_top"]
+material = SubResource("Mat_cut")
+top_radius = 0.16
+bottom_radius = 0.16
+height = 0.012
+radial_segments = 7
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_log"]
+material = SubResource("Mat_bark")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.42
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_hay"]
+material = SubResource("Mat_hay")
+top_radius = 0.16
+bottom_radius = 0.16
+height = 0.42
+radial_segments = 8
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_hay_small"]
+material = SubResource("Mat_hay_dark")
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.3
+radial_segments = 8
+rings = 0
+
+[node name="Obstacle" type="Node3D"]
+script = ExtResource("1_obst")
+
+[node name="Patch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.006, 0)
+mesh = SubResource("Mesh_patch")
+
+[node name="Rocks" type="Node3D" parent="."]
+
+[node name="Big" type="MeshInstance3D" parent="Rocks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.11, 0.04)
+mesh = SubResource("Mesh_rock_big")
+
+[node name="Mid" type="MeshInstance3D" parent="Rocks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0.08, -0.12)
+mesh = SubResource("Mesh_rock_mid")
+
+[node name="Small" type="MeshInstance3D" parent="Rocks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.05, 0.24)
+mesh = SubResource("Mesh_rock_small")
+
+[node name="Stump" type="Node3D" parent="."]
+
+[node name="Trunk" type="MeshInstance3D" parent="Stump"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.11, -0.05)
+mesh = SubResource("Mesh_stump")
+
+[node name="Cut" type="MeshInstance3D" parent="Stump"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.226, -0.05)
+mesh = SubResource("Mesh_stump_top")
+
+[node name="Log" type="MeshInstance3D" parent="Stump"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.05, 0.06, 0.25)
+mesh = SubResource("Mesh_log")
+
+[node name="Hay" type="Node3D" parent="."]
+
+[node name="Bale1" type="MeshInstance3D" parent="Hay"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.16, -0.12)
+mesh = SubResource("Mesh_hay")
+
+[node name="Bale2" type="MeshInstance3D" parent="Hay"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.06, 0.12, 0.22)
+mesh = SubResource("Mesh_hay_small")

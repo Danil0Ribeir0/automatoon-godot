@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/game/level_manager.gd" id="1_lm"]
+[ext_resource type="Script" path="res://scripts/ui/level_complete_panel.gd" id="2_panel"]
+[ext_resource type="Resource" path="res://resources/worlds/world_1.tres" id="3_world"]
+[ext_resource type="PackedScene" uid="uid://dmrul5ifts6cx" path="res://scenes/game/GameWorld.tscn" id="4_game"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="5_pause"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_lm")
+world = ExtResource("3_world")
+game_scene = ExtResource("4_game")
+
+[node name="LevelCompletePanel" type="CanvasLayer" parent="."]
+script = ExtResource("2_panel")
+
+[node name="PauseMenu" parent="." instance=ExtResource("5_pause")]
