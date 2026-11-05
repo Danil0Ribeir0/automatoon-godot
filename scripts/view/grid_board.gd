@@ -4,6 +4,9 @@ extends Node3D
 @export var cell_size: float = 1.0
 @export var rail_piece_scene: PackedScene
 @export var station_scene: PackedScene
+@export var obstacle_scene: PackedScene
+## Túnel do Spawn/Exit. Sem cena atribuída, desenha caixas coloridas.
+@export var terminal_scene: PackedScene
 ## Alfabeto do jogo: cor de cada estação pelo símbolo.
 @export var symbols: Array[SymbolDefinition] = []
 
@@ -14,12 +17,15 @@ extends Node3D
 @export var exit_color := Color(0.75, 0.25, 0.2)
 @export var ghost_valid_color := Color(0.3, 1.0, 0.4)
 @export var ghost_invalid_color := Color(1.0, 0.3, 0.3)
+@export var error_color := Color(1.0, 0.2, 0.2, 0.5)
 
 var _model: GridModel
 var _pieces: Dictionary = {} # Vector2i -> RailPiece
 var _station_views: Dictionary = {} # Vector2i -> StationView
+var _obstacle_views: Dictionary = {} # Vector2i -> ObstacleView
 var _symbol_lookup: Dictionary = {} # StringName -> SymbolDefinition
 var _preview: StationView
+var _error_marker: MeshInstance3D
 
 @onready var _ground: MeshInstance3D = $Ground
 @onready var _lines: MeshInstance3D = $Lines
@@ -63,6 +69,33 @@ func show_preview(cell: Vector2i, state: int) -> void:
 	_preview.visible = true
 
 
+func pulse_station(cell: Vector2i) -> void:
+	var view: StationView = _station_views.get(cell)
+	if view:
+		view.pulse()
+
+
+func show_error(cell: Vector2i) -> void:
+	if _error_marker == null:
+		var box := BoxMesh.new()
+		box.size = Vector3(1.0, 0.02, 1.0) * cell_size
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = error_color
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		box.material = mat
+		_error_marker = MeshInstance3D.new()
+		_error_marker.mesh = box
+		add_child(_error_marker)
+	_error_marker.position = _cell_to_local(cell) + Vector3(0, 0.015 * cell_size, 0)
+	_error_marker.visible = true
+
+
+func hide_error() -> void:
+	if _error_marker:
+		_error_marker.visible = false
+
+
 func _cell_to_local(cell: Vector2i) -> Vector3:
 	var half := Vector2(_model.size) * 0.5
 	return Vector3(
@@ -78,6 +111,7 @@ func _on_cell_changed(cell: Vector2i) -> void:
 		return
 	_sync_rail(cell)
 	_sync_station(cell)
+	_sync_obstacle(cell)
 
 
 func _sync_rail(cell: Vector2i) -> void:
@@ -107,6 +141,17 @@ func _sync_station(cell: Vector2i) -> void:
 			return
 		_station_views[cell] = view
 	view.apply(_symbol_lookup.get(station.symbol), _model.is_locked(cell))
+
+
+func _sync_obstacle(cell: Vector2i) -> void:
+	if not _model.is_blocked(cell) or _obstacle_views.has(cell):
+		return
+	var view := _spawn_view(obstacle_scene, cell)
+	if view == null:
+		return
+	_obstacle_views[cell] = view
+	if view.has_method("apply"):
+		view.apply(cell)
 
 
 func _spawn_view(scene: PackedScene, cell: Vector2i) -> Node3D:
@@ -145,9 +190,25 @@ func _create_preview() -> void:
 # --- Visual do tabuleiro ---------------------------------------------------
 
 func _build_terminals() -> void:
-	# Placeholder: vira Spawn.tscn/Exit.tscn (túneis) numa etapa futura.
-	_add_marker(_model.spawn_cell, spawn_color)
-	_add_marker(_model.exit_cell, exit_color)
+	_add_terminal(_model.spawn_cell, spawn_color, "Partida")
+	_add_terminal(_model.exit_cell, exit_color, "Chegada")
+
+
+func _add_terminal(cell: Vector2i, color: Color, title: String) -> void:
+	if terminal_scene == null:
+		_add_marker(cell, color)
+		return
+	# Abrigo aberto: um trilho reto dentro da célula do terminal, na direção da grid.
+	var rail := _spawn_view(rail_piece_scene, cell) as RailPiece
+	if rail:
+		var dir := _model.get_shape(cell)
+		rail.apply_shape(GridModel.HORIZONTAL if dir & GridModel.HORIZONTAL else GridModel.VERTICAL)
+	var view := terminal_scene.instantiate() as Node3D
+	view.position = _cell_to_local(cell)
+	view.scale = Vector3.ONE * cell_size
+	add_child(view)
+	if view.has_method("apply"):
+		view.apply(_model.get_shape(cell), color, title) # formato do terminal = direção da grid
 
 
 func _add_marker(cell: Vector2i, color: Color) -> void:

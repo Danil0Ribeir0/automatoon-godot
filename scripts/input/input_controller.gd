@@ -14,6 +14,8 @@ signal rail_tool_requested
 signal station_tool_requested
 ## +1 = próximo símbolo, -1 = anterior.
 signal symbol_scrolled(step: int)
+signal test_requested
+signal restart_requested
 
 @export var picker: GridPicker
 
@@ -52,6 +54,10 @@ func _handle_key(event: InputEventKey) -> void:
 			rail_tool_requested.emit()
 		KEY_2:
 			station_tool_requested.emit()
+		KEY_T:
+			test_requested.emit()
+		KEY_R:
+			restart_requested.emit()
 
 
 func _handle_button(event: InputEventMouseButton) -> void:

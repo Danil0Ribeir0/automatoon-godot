@@ -23,6 +23,8 @@ var _primary: BuildTool
 ## Ferramenta do traço em andamento (null quando nenhum botão está pressionado).
 var _stroke_tool: BuildTool
 var _hover_cell := GridPicker.NO_CELL
+## false enquanto o trem anda: ignora input de edição.
+var _enabled := true
 
 
 func setup(model: GridModel, station_enabled: bool, symbols: Array[StringName]) -> void:
@@ -46,6 +48,8 @@ func setup(model: GridModel, station_enabled: bool, symbols: Array[StringName]) 
 
 ## `symbol` vazio na ferramenta Estação = mantém o último símbolo usado.
 func request_tool(tool: int, symbol: StringName = &"") -> void:
+	if not _enabled:
+		return
 	if _stroke_tool != null:
 		return # não troca de ferramenta no meio de um traço
 	match tool:
@@ -69,7 +73,19 @@ func request_tool(tool: int, symbol: StringName = &"") -> void:
 	_refresh_preview()
 
 
+func set_enabled(enabled: bool) -> void:
+	_enabled = enabled
+	_refresh_preview()
+
+
+## Há um traço em andamento (botão do mouse pressionado)?
+func is_busy() -> bool:
+	return _stroke_tool != null
+
+
 func cycle_symbol(step: int) -> void:
+	if not _enabled:
+		return
 	if not _station_active or _stroke_tool != null or _symbols.size() < 2:
 		return
 	_symbol_index = posmod(_symbol_index + step, _symbols.size())
@@ -77,6 +93,8 @@ func cycle_symbol(step: int) -> void:
 
 
 func _begin_stroke(cell: Vector2i, primary: bool) -> void:
+	if not _enabled:
+		return
 	_stroke_tool = _primary if primary else _eraser
 	_refresh_preview() # esconde o fantasma durante o traço
 	_stroke_tool.begin(cell)
@@ -101,6 +119,6 @@ func _on_hover_changed(cell: Vector2i) -> void:
 
 func _refresh_preview() -> void:
 	var state := BuildTool.Preview.HIDDEN
-	if _stroke_tool == null and _hover_cell != GridPicker.NO_CELL:
+	if _enabled and _stroke_tool == null and _hover_cell != GridPicker.NO_CELL:
 		state = _primary.preview(_hover_cell)
 	preview_changed.emit(_hover_cell, state)

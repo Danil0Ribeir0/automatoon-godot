@@ -5,8 +5,15 @@
 [ext_resource type="Resource" uid="uid://y5nnvhjd550j" path="res://resources/symbols/symbol_0.tres" id="2_6x2qt"]
 [ext_resource type="Resource" uid="uid://drqhgypurb7oi" path="res://resources/symbols/symbol_1.tres" id="3_h0f27"]
 [ext_resource type="Script" uid="uid://dhw7vdw0qgcfv" path="res://scripts/levels/station_placement.gd" id="4_7kmxl"]
+[ext_resource type="Script" uid="uid://c30h3m3lt2nks" path="res://scripts/levels/train_definition.gd" id="6_6x2qt"]
+
+[sub_resource type="Resource" id="Resource_22ptg"]
+script = ExtResource("6_6x2qt")
+wagons = Array[ExtResource("1_crt54")]([ExtResource("3_h0f27"), ExtResource("2_6x2qt")])
+metadata/_custom_type_script = "uid://c30h3m3lt2nks"
 
 [resource]
 script = ExtResource("1_5h1jg")
 available_symbols = Array[ExtResource("1_crt54")]([ExtResource("2_6x2qt"), ExtResource("3_h0f27")])
+train = SubResource("Resource_22ptg")
 metadata/_custom_type_script = "uid://da6c07r64e8jd"

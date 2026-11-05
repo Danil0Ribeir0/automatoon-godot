@@ -2,21 +2,203 @@
 
 [ext_resource type="Script" uid="uid://c5l3bl1nvwhy" path="res://scripts/view/station_view.gd" id="1_qv182"]
 
-[sub_resource type="BoxMesh" id="BoxMesh_pr1q8"]
-size = Vector3(0.9, 0.15, 0.9)
+[sub_resource type="StandardMaterial3D" id="Mat_gravel"]
+albedo_color = Color(0.66, 0.6, 0.53, 1)
+roughness = 1.0
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_h64yi"]
-top_radius = 0.2
-bottom_radius = 0.2
-height = 0.4
+[sub_resource type="StandardMaterial3D" id="Mat_wood"]
+albedo_color = Color(0.69, 0.51, 0.33, 1)
+roughness = 1.0
 
-[node name="Station" type="Node3D" unique_id=274982003]
+[sub_resource type="StandardMaterial3D" id="Mat_wood_dark"]
+albedo_color = Color(0.54, 0.39, 0.25, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_symbol"]
+albedo_color = Color(1, 1, 1, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_iron"]
+albedo_color = Color(0.25, 0.25, 0.27, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_lantern"]
+albedo_color = Color(1, 0.84, 0.42, 1)
+emission_enabled = true
+emission = Color(1, 0.78, 0.35, 1)
+emission_energy_multiplier = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_tin"]
+albedo_color = Color(0.79, 0.81, 0.83, 1)
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="Mat_leaf"]
+albedo_color = Color(0.37, 0.62, 0.26, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_clay"]
+albedo_color = Color(0.72, 0.42, 0.28, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_base"]
+material = SubResource("Mat_gravel")
+size = Vector3(0.96, 0.02, 0.96)
+
+[sub_resource type="BoxMesh" id="Mesh_boards"]
+material = SubResource("Mat_wood")
+size = Vector3(0.84, 0.02, 0.84)
+
+[sub_resource type="BoxMesh" id="Mesh_seam"]
+material = SubResource("Mat_wood_dark")
+size = Vector3(0.84, 0.003, 0.012)
+
+[sub_resource type="BoxMesh" id="Mesh_trim_x"]
+material = SubResource("Mat_symbol")
+size = Vector3(0.88, 0.026, 0.04)
+
+[sub_resource type="BoxMesh" id="Mesh_trim_z"]
+material = SubResource("Mat_symbol")
+size = Vector3(0.04, 0.026, 0.8)
+
+[sub_resource type="BoxMesh" id="Mesh_sign_board"]
+material = SubResource("Mat_symbol")
+size = Vector3(0.24, 0.17, 0.025)
+
+[sub_resource type="BoxMesh" id="Mesh_post"]
+material = SubResource("Mat_wood_dark")
+size = Vector3(0.035, 0.5, 0.035)
+
+[sub_resource type="BoxMesh" id="Mesh_lantern"]
+material = SubResource("Mat_lantern")
+size = Vector3(0.08, 0.1, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_lantern_cap"]
+material = SubResource("Mat_iron")
+size = Vector3(0.11, 0.02, 0.11)
+
+[sub_resource type="BoxMesh" id="Mesh_crate"]
+material = SubResource("Mat_wood_dark")
+size = Vector3(0.1, 0.1, 0.1)
+
+[sub_resource type="CylinderMesh" id="Mesh_can"]
+material = SubResource("Mat_tin")
+top_radius = 0.025
+bottom_radius = 0.035
+height = 0.09
+radial_segments = 6
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_pot"]
+material = SubResource("Mat_clay")
+top_radius = 0.045
+bottom_radius = 0.035
+height = 0.05
+radial_segments = 6
+rings = 0
+
+[sub_resource type="SphereMesh" id="Mesh_plant"]
+material = SubResource("Mat_leaf")
+radius = 0.055
+height = 0.09
+radial_segments = 6
+rings = 3
+
+[node name="Station" type="Node3D"]
 script = ExtResource("1_qv182")
 
-[node name="Plataform" type="MeshInstance3D" parent="." unique_id=134825303]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 0)
-mesh = SubResource("BoxMesh_pr1q8")
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = SubResource("Mesh_base")
 
-[node name="Marker" type="MeshInstance3D" parent="." unique_id=175112993]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
-mesh = SubResource("CylinderMesh_h64yi")
+[node name="Deck" type="Node3D" parent="."]
+
+[node name="Boards" type="MeshInstance3D" parent="Deck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+mesh = SubResource("Mesh_boards")
+
+[node name="Seam1" type="MeshInstance3D" parent="Deck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0415, -0.21)
+mesh = SubResource("Mesh_seam")
+
+[node name="Seam2" type="MeshInstance3D" parent="Deck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0415, 0)
+mesh = SubResource("Mesh_seam")
+
+[node name="Seam3" type="MeshInstance3D" parent="Deck"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0415, 0.21)
+mesh = SubResource("Mesh_seam")
+
+[node name="SymbolParts" type="Node3D" parent="."]
+
+[node name="TrimNorth" type="MeshInstance3D" parent="SymbolParts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.033, -0.42)
+mesh = SubResource("Mesh_trim_x")
+
+[node name="TrimSouth" type="MeshInstance3D" parent="SymbolParts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.033, 0.42)
+mesh = SubResource("Mesh_trim_x")
+
+[node name="TrimEast" type="MeshInstance3D" parent="SymbolParts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.033, 0)
+mesh = SubResource("Mesh_trim_z")
+
+[node name="TrimWest" type="MeshInstance3D" parent="SymbolParts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42, 0.033, 0)
+mesh = SubResource("Mesh_trim_z")
+
+[node name="SignBoard" type="MeshInstance3D" parent="SymbolParts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.36, 0.5, -0.42)
+mesh = SubResource("Mesh_sign_board")
+
+[node name="SignPost" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 0.29, -0.44)
+mesh = SubResource("Mesh_post")
+
+[node name="SignLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.36, 0.5, -0.405)
+pixel_size = 0.003
+text = "?"
+font_size = 48
+outline_size = 10
+
+[node name="FloorLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.046, 0)
+pixel_size = 0.004
+text = "?"
+font_size = 96
+outline_size = 16
+
+[node name="Lamp" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44, 0, -0.44)
+
+[node name="Post" type="MeshInstance3D" parent="Lamp"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0)
+mesh = SubResource("Mesh_post")
+
+[node name="Lantern" type="MeshInstance3D" parent="Lamp"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.59, 0)
+mesh = SubResource("Mesh_lantern")
+
+[node name="Cap" type="MeshInstance3D" parent="Lamp"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+mesh = SubResource("Mesh_lantern_cap")
+
+[node name="Crate" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.96, 0, 0.28, 0, 1, 0, -0.28, 0, 0.96, 0.42, 0.09, 0.42)
+mesh = SubResource("Mesh_crate")
+
+[node name="MilkCan1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44, 0.085, 0.4)
+mesh = SubResource("Mesh_can")
+
+[node name="MilkCan2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.39, 0.085, 0.45)
+mesh = SubResource("Mesh_can")
+
+[node name="Pot" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 0.065, 0.3)
+mesh = SubResource("Mesh_pot")
+
+[node name="Plant" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 0.12, 0.3)
+mesh = SubResource("Mesh_plant")

@@ -27,3 +27,32 @@ layout_mode = 2
 text = "Estação"
 key_hint = "2"
 show_symbol_badge = true
+
+[node name="TestButton" parent="." unique_id=1124584957 instance=ExtResource("2_atyv1")]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -204.0
+offset_top = -93.0
+offset_right = -24.0
+offset_bottom = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Testar"
+key_hint = "T"
+toggleable = false
+
+[node name="ResultLabel" type="Label" parent="." unique_id=2066626742]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4

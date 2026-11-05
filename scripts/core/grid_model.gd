@@ -46,6 +46,8 @@ var _shapes: Dictionary = {}
 var _stations: Dictionary = {}
 ## Células travadas pela fase (estações fixas).
 var _locked: Dictionary = {}
+## Obstáculos da fase: nada pode ser construído ali.
+var _blocked: Dictionary = {}
 
 
 func _init(p_size: Vector2i, p_spawn: Vector2i, p_exit: Vector2i) -> void:
@@ -65,7 +67,20 @@ func is_terminal(cell: Vector2i) -> bool:
 
 
 func is_node(cell: Vector2i) -> bool:
-	return in_bounds(cell) or is_terminal(cell)
+	return (in_bounds(cell) and not is_blocked(cell)) or is_terminal(cell)
+
+
+func is_blocked(cell: Vector2i) -> bool:
+	return _blocked.has(cell)
+
+
+## Trilhos colocados na grid (terminais não contam). Base das estrelas.
+func rail_count() -> int:
+	var count := 0
+	for cell in _shapes:
+		if in_bounds(cell):
+			count += 1
+	return count
 
 
 func has_rail(cell: Vector2i) -> bool:
@@ -130,7 +145,7 @@ func connected_dirs(cell: Vector2i) -> int:
 
 
 func place_rail(cell: Vector2i, shape: int = HORIZONTAL) -> bool:
-	if not in_bounds(cell) or is_occupied(cell) or shape not in SHAPE_CYCLE:
+	if not in_bounds(cell) or is_blocked(cell) or is_occupied(cell) or shape not in SHAPE_CYCLE:
 		return false
 	_shapes[cell] = shape
 	cell_changed.emit(cell)
@@ -193,6 +208,14 @@ func remove_station(cell: Vector2i) -> bool:
 	return true
 
 
+## Obstáculo definido pela fase. Só em célula vazia da grid.
+func block_cell(cell: Vector2i) -> void:
+	if not in_bounds(cell) or is_occupied(cell):
+		return
+	_blocked[cell] = true
+	cell_changed.emit(cell)
+
+
 func lock_cell(cell: Vector2i) -> void:
 	_locked[cell] = true
 	cell_changed.emit(cell)
@@ -219,5 +242,5 @@ func has_adjacent_station(cell: Vector2i) -> bool:
 
 ## Regra: duas estações nunca ficam coladas. Entre elas há pelo menos um trilho.
 func can_place_station(cell: Vector2i) -> bool:
-	return in_bounds(cell) and not has_station(cell) and not is_locked(cell) \
-			and not has_adjacent_station(cell)
+	return in_bounds(cell) and not is_blocked(cell) and not has_station(cell) \
+			and not is_locked(cell) and not has_adjacent_station(cell)

@@ -5,6 +5,8 @@ extends Button
 @export var key_hint: String = "1"
 ## Mostra o quadradinho do símbolo no canto superior esquerdo.
 @export var show_symbol_badge := false
+## false = botão de ação (não fica pressionado). Ex.: "Testar".
+@export var toggleable := true
 
 @export_group("Estilo")
 @export var font: Font
@@ -31,7 +33,7 @@ var _pulse: Tween
 
 
 func _ready() -> void:
-	toggle_mode = true
+	toggle_mode = toggleable
 	focus_mode = Control.FOCUS_NONE # teclas não "clicam" o botão focado
 	_apply_button_style()
 	_key_badge = _make_badge(key_hint, true, true)[0]

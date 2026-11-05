@@ -48,15 +48,8 @@ static func _entry_side(model: GridModel, from: Vector2i, target: Vector2i) -> i
 
 
 ## Saída de uma célula dado o lado de entrada. Estação com 4 ligações cruza
-## em linha reta; com 3, a caminhada para (o validador invalida).
 static func _next_dir(model: GridModel, cell: Vector2i, entry: int) -> int:
-	var others := model.connected_dirs(cell) & ~entry
-	var count := GridModel.bit_count(others)
-	if count == 1:
-		return others
-	if count == 3 and entry != 0:
-		return GridModel.OPPOSITE[entry]
-	return 0
+	return maxi(PathWalker.next_dir(model, cell, entry), 0)
 
 
 static func _closest_to_exit(model: GridModel, cell: Vector2i, links: int) -> int:
