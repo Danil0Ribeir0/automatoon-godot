@@ -77,19 +77,38 @@ func _ensure_info() -> void:
 	add_child(_info)
 	_title_label = _make_label(26)
 	_info.add_child(_title_label)
-	var row := HBoxContainer.new()
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_theme_constant_override("separation", 8)
-	var word_label := _make_label(20)
-	word_label.text = "Palavra:"
-	row.add_child(word_label)
-	_word_strip = HBoxContainer.new()
-	_word_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_word_strip.add_theme_constant_override("separation", 6)
-	row.add_child(_word_strip)
-	_info.add_child(row)
 	_rail_label = _make_label(20)
 	_info.add_child(_rail_label)
+	_build_goal_panel()
+
+
+## Painel "OBJETIVO" no topo central: a palavra que o trem precisa formar.
+func _build_goal_panel() -> void:
+	var panel := PanelContainer.new()
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new()) # sem fundo
+	add_child(panel)
+	# Centralizado no topo; cresce para os dois lados conforme o tamanho da palavra.
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.offset_top = 20
+
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 6)
+	panel.add_child(column)
+
+	var title := _make_label(18)
+	title.text = "OBJETIVO"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_color_override("font_color", Color("f3e7b3"))
+	column.add_child(title)
+
+	_word_strip = HBoxContainer.new()
+	_word_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_word_strip.alignment = BoxContainer.ALIGNMENT_CENTER
+	_word_strip.add_theme_constant_override("separation", 8)
+	column.add_child(_word_strip)
 
 
 func _make_label(size: int) -> Label:
@@ -105,14 +124,14 @@ func _make_label(size: int) -> Label:
 func _make_chip(definition: SymbolDefinition) -> Control:
 	var chip := PanelContainer.new()
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	chip.custom_minimum_size = Vector2(38, 38)
+	chip.custom_minimum_size = Vector2(52, 52)
 	var box := StyleBoxFlat.new()
 	box.bg_color = definition.color if definition else Color.MAGENTA
 	box.border_color = Color("17345a")
-	box.set_border_width_all(2)
-	box.set_corner_radius_all(6)
+	box.set_border_width_all(3)
+	box.set_corner_radius_all(8)
 	chip.add_theme_stylebox_override("panel", box)
-	var label := _make_label(22)
+	var label := _make_label(30)
 	label.text = String(definition.id) if definition else "?"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
