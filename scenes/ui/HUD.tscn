@@ -32,8 +32,10 @@ layout_mode = 2
 key_hint = "2"
 show_symbol_badge = true
 icon_model = ExtResource("4_stn")
-model_yaw = 30.0
-model_tilt = 50.0
+model_yaw = 35.0
+model_padding = 1.0
+model_tilt = 30.0
+content_margin = 4
 
 [node name="TestButton" parent="." unique_id=1124584957 instance=ExtResource("2_atyv1")]
 anchors_preset = 3
@@ -47,19 +49,37 @@ offset_right = -24.0
 offset_bottom = -23.0
 grow_horizontal = 0
 grow_vertical = 0
-text = "Testar"
-key_hint = "T"
+text = "Partir"
+key_hint = "Espaço"
 toggleable = false
 
-[node name="ResultLabel" type="Label" parent="." unique_id=2066626742]
+[node name="ResetButton" parent="." unique_id=1587342093 instance=ExtResource("2_atyv1")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -83.0
+offset_right = 164.0
+offset_bottom = -23.0
+grow_vertical = 0
+text = "Reiniciar"
+key_hint = "R"
+toggleable = false
+
+[node name="ResultLabel" type="RichTextLabel" parent="." unique_id=2066626742]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -23.0
-offset_right = 20.0
+offset_left = -400.0
+offset_top = -165.0
+offset_right = 400.0
+offset_bottom = -121.0
 grow_horizontal = 2
 grow_vertical = 0
-size_flags_horizontal = 4
+mouse_filter = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0

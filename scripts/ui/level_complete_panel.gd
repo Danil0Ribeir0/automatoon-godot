@@ -1,7 +1,8 @@
 class_name LevelCompletePanel
 extends CanvasLayer
 
-## Tela de fase concluída: estrelas, trilhos usados, Repetir [R] e Próxima [N].
+## Tela de fase concluída: estrelas, trilhos usados/meta, melhor resultado,
+## Repetir [R] e Próxima [Espaço/Enter, as mesmas teclas do Partir].
 ## Só pede; quem troca de fase é o LevelManager.
 
 signal retry_requested
@@ -14,7 +15,9 @@ const STAR_OFF := Color(1, 1, 1, 0.25)
 var _root: Control
 var _title: Label
 var _stars: Array[Label] = []
-var _details: Label
+var _rails_count: Label
+var _rails_par: Label
+var _best: Label
 var _retry: ToolButton
 var _next: ToolButton
 var _tween: Tween
@@ -28,9 +31,12 @@ func _ready() -> void:
 
 func show_result(stars: int, rails: int, par: int, best: int, is_last: bool) -> void:
 	_title.text = "Mundo concluído!" if is_last else "Fase concluída!"
-	var meta := "   ·   meta ★★★: %d" % par if par > 0 else ""
-	_details.text = "Trilhos usados: %d%s\nMelhor resultado: %s" % [
-			rails, meta, "★".repeat(best) + "☆".repeat(3 - best)]
+	# Mesmo formato do HUD: "usados / meta", na cor das estrelas.
+	_rails_count.text = str(rails)
+	_rails_count.add_theme_color_override("font_color", HUD.rails_color(rails, par))
+	_rails_par.text = "/ %d" % par
+	_rails_par.visible = par > 0
+	_best.text = "Recorde: " + "★".repeat(best) + "☆".repeat(3 - best)
 	_next.text = "Recomeçar" if is_last else "Próxima"
 	_root.visible = true
 
@@ -55,7 +61,7 @@ func hide_panel() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not _root.visible or not event is InputEventKey:
 		return
-	if event.pressed and not event.echo and event.physical_keycode == KEY_N:
+	if event.pressed and not event.echo and event.physical_keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]:
 		get_viewport().set_input_as_handled()
 		next_requested.emit()
 
@@ -105,14 +111,33 @@ func _build() -> void:
 		star_row.add_child(star)
 	column.add_child(star_row)
 
-	_details = _label(22)
-	column.add_child(_details)
+	var rails_block := VBoxContainer.new()
+	rails_block.add_theme_constant_override("separation", 0)
+	var caption := _label(18)
+	caption.text = "TRILHOS"
+	caption.add_theme_color_override("font_color", Color("f3e7b3"))
+	rails_block.add_child(caption)
+	var rails_row := HBoxContainer.new()
+	rails_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	rails_row.add_theme_constant_override("separation", 8)
+	_rails_count = _label(44)
+	rails_row.add_child(_rails_count)
+	_rails_par = _label(28)
+	_rails_par.add_theme_color_override("font_color", Color("f3e7b3"))
+	_rails_par.size_flags_vertical = Control.SIZE_SHRINK_END # apoia na base do número
+	rails_row.add_child(_rails_par)
+	rails_block.add_child(rails_row)
+	column.add_child(rails_block)
+
+	_best = _label(20)
+	_best.add_theme_color_override("font_color", Color("f3e7b3"))
+	column.add_child(_best)
 
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 40)
 	_retry = _button("Repetir", "R")
-	_next = _button("Próxima", "N")
+	_next = _button("Próxima", "Espaço")
 	buttons.add_child(_retry)
 	buttons.add_child(_next)
 	column.add_child(buttons)

@@ -9,6 +9,11 @@ signal restart_requested
 ## Número mostrado no HUD ("Fase 3 · ..."). 0 = só o título.
 @export var level_number := 0
 
+## Velocidade do trem enquanto o jogador segura Espaço/Enter.
+@export_range(1.0, 3.0) var fast_forward_multiplier := 2.0
+## Tempo segurando que conta como "aprendeu a acelerar" (a dica some).
+const FAST_LEARN_TIME := 0.4
+
 @export_group("Camera")
 @export_range(30.0, 80.0) var camera_pitch_degrees: float = 55.0
 @export_range(20.0, 70.0) var camera_fov: float = 45.0
@@ -26,6 +31,8 @@ var _model: GridModel
 var _last_result: ValidationResult
 ## A fase foi vencida: edição fica travada até repetir/avançar.
 var _completed := false
+## Há quanto tempo Espaço/Enter está segurado durante o percurso.
+var _fast_held := 0.0
 
 
 func _ready() -> void:
@@ -38,7 +45,7 @@ func _ready() -> void:
 	_apply_fixed_stations()
 
 	_router.setup(_model, level.station_tool_enabled, level.get_symbol_ids())
-	_hud.setup(level.get_symbol_ids(), level.station_tool_enabled)
+	_hud.setup(level.get_symbol_ids(), level.station_tool_enabled, level.available_symbols)
 	_hud.show_level(_level_title(), _wagons(), level.par_rails)
 	_hud.show_rail_count(_model.rail_count())
 	_hud.tool_requested.connect(_router.request_tool)
@@ -48,6 +55,7 @@ func _ready() -> void:
 	_hud.test_requested.connect(_run_validation)
 	_input.test_requested.connect(_run_validation)
 	_input.restart_requested.connect(_on_restart)
+	_hud.restart_requested.connect(_on_restart)
 	_model.cell_changed.connect(_on_model_changed)
 	_train.step_reached.connect(_on_train_step)
 	_park_train()
@@ -82,6 +90,19 @@ func _fit_camera() -> void:
 	_camera.position = Vector3(0.0, sin(pitch), cos(pitch)) * distance
 
 
+## Segurar Espaço/Enter acelera o trem enquanto ele anda.
+func _process(delta: float) -> void:
+	if not _train.is_running():
+		return
+	var fast := Input.is_physical_key_pressed(KEY_SPACE) \
+			or Input.is_physical_key_pressed(KEY_ENTER) \
+			or Input.is_physical_key_pressed(KEY_KP_ENTER)
+	_train.set_speed_multiplier(fast_forward_multiplier if fast else 1.0)
+	_fast_held = _fast_held + delta if fast else 0.0
+	if _fast_held >= FAST_LEARN_TIME:
+		_hud.speed_hint_learned()
+
+
 func _run_validation() -> void:
 	if _completed or _train.is_running() or _router.is_busy():
 		return
@@ -94,8 +115,11 @@ func _run_validation() -> void:
 	_print_route(_last_result)
 
 	_set_editing(false)
+	_fast_held = 0.0
 	if _train.run(_last_result.steps, level.train.wagons, _board, _last_result.success):
+		_hud.show_speed_hint(true)
 		await _train.finished
+	_hud.show_speed_hint(false)
 
 	_hud.show_result(_last_result)
 	if _last_result.success:
