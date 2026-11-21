@@ -64,6 +64,9 @@ func request_tool(tool: int, symbol: StringName = &"") -> void:
 				if i == -1:
 					return
 				_symbol_index = i
+			elif _station_active:
+				# Pedir Estação com ela já ativa (tecla 2 / clique no botão) = próximo símbolo.
+				_symbol_index = posmod(_symbol_index + 1, _symbols.size())
 			_station_placer.symbol = _symbols[_symbol_index]
 			_primary = _station_placer
 			_station_active = true

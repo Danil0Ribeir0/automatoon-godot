@@ -54,6 +54,12 @@ func run(steps: Array[PathStep], wagons: Array[SymbolDefinition], board: GridBoa
 	return true
 
 
+## Acelera (ou volta ao normal) o trem já em movimento. 1.0 = velocidade normal.
+func set_speed_multiplier(multiplier: float) -> void:
+	if _tween and _tween.is_valid():
+		_tween.set_speed_scale(multiplier)
+
+
 func is_running() -> bool:
 	return _tween != null and _tween.is_running()
 

@@ -5,7 +5,7 @@ extends Button
 @export var key_hint: String = "1"
 ## Mostra o quadradinho do símbolo no canto superior esquerdo.
 @export var show_symbol_badge := false
-## false = botão de ação (não fica pressionado). Ex.: "Testar".
+## false = botão de ação (não fica pressionado). Ex.: "Partir".
 @export var toggleable := true
 
 @export_group("Estilo")
@@ -43,6 +43,7 @@ extends Button
 @export var model_hide_labels := true
 
 var _key_badge: Panel
+var _icon_model_instance: Node3D
 var _symbol_badge: Panel
 var _symbol_label: Label
 var _pulse: Tween
@@ -123,6 +124,12 @@ func _make_box(fill: Color, border: Color) -> StyleBoxFlat:
 	return box
 
 
+## Instância do icon_model renderizada no botão (null se não houver).
+## Mexer nela (ex.: cor) atualiza o ícone na hora.
+func get_icon_model() -> Node3D:
+	return _icon_model_instance
+
+
 ## Renderiza icon_model num mundo 3D próprio e usa a imagem como ícone do botão.
 func _setup_model_icon() -> void:
 	var viewport := SubViewport.new()
@@ -155,6 +162,7 @@ func _setup_model_icon() -> void:
 	tilt.add_child(yaw)
 	var model: Node3D = icon_model.instantiate()
 	yaw.add_child(model)
+	_icon_model_instance = model
 	if model_hide_labels:
 		for label in model.find_children("*", "Label3D", true, false):
 			label.queue_free() # sai também do cálculo de enquadramento abaixo
@@ -214,14 +222,20 @@ func _make_badge(text: String, top_right: bool, round: bool) -> Array:
 	box.set_corner_radius_all(int(s * 0.5) if round else 6)
 	panel.add_theme_stylebox_override("panel", box)
 
+	# Texto de 1 letra = bolinha redonda. Texto maior (ex.: "Espaço") = pílula
+	# que cresce para dentro do botão, com fonte um pouco menor.
+	var font_px := int(s * 0.55) if text.length() <= 1 else int(s * 0.45)
+	var used_font: Font = font if font else ThemeDB.fallback_font
+	var w := maxf(s, used_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_px).x + s * 0.6)
+
 	var anchor := 1.0 if top_right else 0.0
 	panel.anchor_left = anchor
 	panel.anchor_right = anchor
-	panel.offset_left = -s * 0.65 if top_right else -s * 0.35
-	panel.offset_right = s * 0.35 if top_right else s * 0.65
+	panel.offset_left = -(w - s * 0.35) if top_right else -s * 0.35
+	panel.offset_right = s * 0.35 if top_right else w - s * 0.35
 	panel.offset_top = -s * 0.35
 	panel.offset_bottom = s * 0.65
-	panel.pivot_offset = Vector2(s, s) * 0.5
+	panel.pivot_offset = Vector2(w, s) * 0.5
 
 	var label := Label.new()
 	label.text = text
@@ -229,7 +243,7 @@ func _make_badge(text: String, top_right: bool, round: bool) -> Array:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_color_override("font_color", badge_text_color)
-	label.add_theme_font_size_override("font_size", int(s * 0.55))
+	label.add_theme_font_size_override("font_size", font_px)
 	if font:
 		label.add_theme_font_override("font", font)
 
