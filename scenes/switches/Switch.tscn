@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/view/switch_view.gd" id="1_sw"]
+[ext_resource type="PackedScene" uid="uid://djgo7ml3073w8" path="res://scenes/rails/RailPiece.tscn" id="2_rail"]
+
+[node name="Switch" type="Node3D"]
+script = ExtResource("1_sw")
+rail_piece_scene = ExtResource("2_rail")

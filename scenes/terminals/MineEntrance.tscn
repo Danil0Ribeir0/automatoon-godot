@@ -1,0 +1,122 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/view/terminal_view.gd" id="1_term"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_timber"]
+albedo_color = Color(0.48, 0.33, 0.2, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_timber_dark"]
+albedo_color = Color(0.36, 0.24, 0.15, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock"]
+albedo_color = Color(0.5, 0.47, 0.44, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_trim"]
+albedo_color = Color(1, 1, 1, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_post"]
+material = SubResource("Mat_timber")
+size = Vector3(0.09, 0.66, 0.09)
+
+[sub_resource type="BoxMesh" id="Mesh_header"]
+material = SubResource("Mat_timber_dark")
+size = Vector3(0.11, 0.09, 0.76)
+
+[sub_resource type="BoxMesh" id="Mesh_side"]
+material = SubResource("Mat_timber_dark")
+size = Vector3(0.94, 0.07, 0.07)
+
+[sub_resource type="BoxMesh" id="Mesh_board"]
+material = SubResource("Mat_trim")
+size = Vector3(0.3, 0.1, 0.02)
+
+[sub_resource type="SphereMesh" id="Mesh_rock"]
+material = SubResource("Mat_rock")
+radius = 0.16
+height = 0.2
+radial_segments = 6
+rings = 3
+
+[sub_resource type="BoxMesh" id="Mesh_lantern"]
+size = Vector3(0.06, 0.08, 0.06)
+
+[node name="MineEntrance" type="Node3D"]
+script = ExtResource("1_term")
+
+[node name="FrameFront" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0, 0)
+
+[node name="PostN" type="MeshInstance3D" parent="FrameFront"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, -0.32)
+mesh = SubResource("Mesh_post")
+
+[node name="PostS" type="MeshInstance3D" parent="FrameFront"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, 0.32)
+mesh = SubResource("Mesh_post")
+
+[node name="Header" type="MeshInstance3D" parent="FrameFront"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+mesh = SubResource("Mesh_header")
+
+[node name="FrameBack" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42, 0, 0)
+
+[node name="PostN" type="MeshInstance3D" parent="FrameBack"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, -0.32)
+mesh = SubResource("Mesh_post")
+
+[node name="PostS" type="MeshInstance3D" parent="FrameBack"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, 0.32)
+mesh = SubResource("Mesh_post")
+
+[node name="Header" type="MeshInstance3D" parent="FrameBack"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+mesh = SubResource("Mesh_header")
+
+[node name="SideN" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, -0.32)
+mesh = SubResource("Mesh_side")
+
+[node name="SideS" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 0.32)
+mesh = SubResource("Mesh_side")
+
+[node name="RockN1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.3, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0.08, -0.47)
+mesh = SubResource("Mesh_rock")
+
+[node name="RockN2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1, -0.25, 0.06, -0.46)
+mesh = SubResource("Mesh_rock")
+
+[node name="RockS1" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.9, 0, 0, 0, 0.7, 0, 0, 0, 0.9, -0.1, 0.05, 0.47)
+mesh = SubResource("Mesh_rock")
+
+[node name="Trims" type="Node3D" parent="."]
+
+[node name="BoardS" type="MeshInstance3D" parent="Trims"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0.36)
+mesh = SubResource("Mesh_board")
+
+[node name="BoardN" type="MeshInstance3D" parent="Trims"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -0.36)
+mesh = SubResource("Mesh_board")
+
+[node name="Lamp" type="Node3D" parent="."]
+
+[node name="Light" type="MeshInstance3D" parent="Lamp"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.58, 0.38)
+mesh = SubResource("Mesh_lantern")
+
+[node name="Sign" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+pixel_size = 0.003
+billboard = 1
+text = "Partida"
+font_size = 48
+outline_size = 14
