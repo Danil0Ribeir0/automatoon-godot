@@ -8,6 +8,8 @@ signal restart_requested
 @export var level: LevelData
 ## Número mostrado no HUD ("Fase 3 · ..."). 0 = só o título.
 @export var level_number := 0
+## Visual do mundo; vazio = o que já está na cena (Fazenda).
+@export var theme: WorldTheme
 
 @export_group("Camera")
 @export_range(30.0, 80.0) var camera_pitch_degrees: float = 55.0
@@ -29,6 +31,8 @@ var _completed := false
 
 
 func _ready() -> void:
+	_apply_theme()
+	apply_settings()
 	_model = GridModel.new(level.grid_size, level.get_spawn_cell(), level.get_exit_cell())
 	_board.setup(_model)
 	if _scenery:
@@ -36,10 +40,11 @@ func _ready() -> void:
 	for cell in level.blocked_cells:
 		_model.block_cell(cell)
 	_apply_fixed_stations()
+	_apply_fixed_switches()
 
-	_router.setup(_model, level.station_tool_enabled, level.get_symbol_ids())
-	_hud.setup(level.get_symbol_ids(), level.station_tool_enabled)
-	_hud.show_level(_level_title(), _wagons(), level.par_rails)
+	_router.setup(_model, level.station_tool_enabled, level.get_symbol_ids(), level.switch_tool_enabled)
+	_hud.setup(level.get_symbol_ids(), level.station_tool_enabled, level.switch_tool_enabled)
+	_hud.show_level(_level_title(), level.get_trains(), level.par_rails)
 	_hud.show_rail_count(_model.rail_count())
 	_hud.tool_requested.connect(_router.request_tool)
 	_router.tool_changed.connect(_hud.show_active_tool)
@@ -50,10 +55,38 @@ func _ready() -> void:
 	_input.restart_requested.connect(_on_restart)
 	_model.cell_changed.connect(_on_model_changed)
 	_train.step_reached.connect(_on_train_step)
-	_park_train()
+	_park_train(0)
 
 	get_viewport().size_changed.connect(_fit_camera)
 	_fit_camera()
+
+
+## Opções que dependem da cena da fase (hoje: sombras da luz principal).
+func apply_settings() -> void:
+	GameSettings.ensure_loaded()
+	var sun := get_node_or_null("DirectionalLight3D") as DirectionalLight3D
+	if sun:
+		sun.shadow_enabled = GameSettings.shadows
+
+
+func _apply_theme() -> void:
+	if theme == null:
+		return
+	if theme.terminal_scene:
+		_board.terminal_scene = theme.terminal_scene
+	if theme.obstacle_scene:
+		_board.obstacle_scene = theme.obstacle_scene
+	if theme.wagon_scene:
+		_train.wagon_scene = theme.wagon_scene
+	_board.ground_color = theme.ground_color
+	_board.line_color = theme.line_color
+	if theme.scenery_scene:
+		if _scenery:
+			remove_child(_scenery)
+			_scenery.queue_free()
+		_scenery = theme.scenery_scene.instantiate() as RuralScenery
+		if _scenery:
+			add_child(_scenery)
 
 
 func _apply_fixed_stations() -> void:
@@ -65,6 +98,17 @@ func _apply_fixed_stations() -> void:
 			push_warning("Estação fixa recusada em %s (fora da grid, obstáculo ou colada em outra estação)" % placement.cell)
 			continue
 		_model.lock_cell(placement.cell)
+
+
+func _apply_fixed_switches() -> void:
+	for placement in level.fixed_switches:
+		if not _model.place_switch(placement.cell, placement.trunk, placement.diverge, placement.straight_symbol):
+			push_warning("Agulha fixa recusada em %s" % placement.cell)
+			continue
+		if placement.locked:
+			_model.lock_cell(placement.cell)
+		else:
+			_model.pin_cell(placement.cell)
 
 
 func _fit_camera() -> void:
@@ -85,26 +129,38 @@ func _fit_camera() -> void:
 func _run_validation() -> void:
 	if _completed or _train.is_running() or _router.is_busy():
 		return
-	if level.train == null:
+	var trains := level.get_trains()
+	if trains.is_empty():
 		push_warning("A fase não tem trem configurado (LevelData > Trem)")
 		return
 
 	_clear_run()
-	_last_result = AutomatonValidator.validate(_model, level.train.get_word())
-	_print_route(_last_result)
-
 	_set_editing(false)
-	if _train.run(_last_result.steps, level.train.wagons, _board, _last_result.success):
-		await _train.finished
+	# Um trem de cada vez; a fase só é vencida se TODOS baterem com o esperado.
+	for i in trains.size():
+		var t := trains[i]
+		_hud.mark_train(i, HUD.Mark.RUNNING)
+		if i > 0:
+			_park_train(i)
+			await get_tree().create_timer(0.35).timeout
+		_last_result = AutomatonValidator.validate(_model, t.get_word())
+		_print_route(_last_result)
+		if _train.run(_last_result.steps, t.wagons, _board, _last_result.success):
+			await _train.finished
+		var ok := _last_result.success == t.expect_accept
+		_hud.mark_train(i, HUD.Mark.PASSED if ok else HUD.Mark.FAILED)
+		if not ok:
+			_hud.show_result(_last_result, i, t.expect_accept, trains.size())
+			if not _last_result.success:
+				_board.show_error(_last_result.error_cell)
+			_set_editing(true)
+			return
+		await get_tree().create_timer(0.3).timeout
 
-	_hud.show_result(_last_result)
-	if _last_result.success:
-		_completed = true # edição continua travada: a fase acabou
-		var rails := _model.rail_count()
-		level_completed.emit(level.stars_for(rails), rails)
-		return
-	_set_editing(true)
-	_board.show_error(_last_result.error_cell)
+	_hud.show_result(_last_result, -1, true, trains.size())
+	_completed = true # edição continua travada: a fase acabou
+	var rails := _model.rail_count()
+	level_completed.emit(level.stars_for(rails), rails)
 
 
 func _on_train_step(index: int) -> void:
@@ -130,16 +186,19 @@ func _on_restart() -> void:
 func _clear_run() -> void:
 	_board.hide_error()
 	_hud.clear_result()
-	_park_train()
+	_hud.clear_marks()
+	_park_train(0)
 
 
-func _park_train() -> void:
-	if level.train == null:
+## Estaciona o trem `index` da fila na frente da Partida.
+func _park_train(index: int) -> void:
+	var trains := level.get_trains()
+	if index >= trains.size():
 		_train.clear()
 		return
 	var spawn_step := PathStep.new(_model.spawn_cell, 0)
 	spawn_step.exit_dir = _model.get_shape(_model.spawn_cell) # aponta para dentro da grid
-	_train.park(spawn_step, level.train.wagons, _board)
+	_train.park(spawn_step, trains[index].wagons, _board)
 
 
 func _set_editing(enabled: bool) -> void:
@@ -151,12 +210,6 @@ func _level_title() -> String:
 	if level_number > 0:
 		return "Fase %d · %s" % [level_number, level.title]
 	return level.title
-
-
-func _wagons() -> Array[SymbolDefinition]:
-	if level.train:
-		return level.train.wagons
-	return []
 
 
 func _print_route(result: ValidationResult) -> void:

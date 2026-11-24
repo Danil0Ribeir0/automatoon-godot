@@ -36,7 +36,8 @@ func _ready() -> void:
 	toggle_mode = toggleable
 	focus_mode = Control.FOCUS_NONE # teclas não "clicam" o botão focado
 	_apply_button_style()
-	_key_badge = _make_badge(key_hint, true, true)[0]
+	if not key_hint.is_empty(): # sem atalho = sem bolinha
+		_key_badge = _make_badge(key_hint, true, true)[0]
 	if show_symbol_badge:
 		var parts := _make_badge("", false, false)
 		_symbol_badge = parts[0]
@@ -47,7 +48,8 @@ func _ready() -> void:
 func set_available(available: bool) -> void:
 	disabled = not available
 	var tint := Color.WHITE if available else Color(0.65, 0.65, 0.65)
-	_key_badge.modulate = tint
+	if _key_badge:
+		_key_badge.modulate = tint
 	if _symbol_badge:
 		_symbol_badge.modulate = tint
 

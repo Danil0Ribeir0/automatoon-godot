@@ -21,5 +21,17 @@ static func record(world_id: StringName, index: int, stars: int) -> void:
 		cfg.save(PATH)
 
 
+## A 1ª fase sempre está liberada; as outras, depois de concluir a anterior.
+static func is_unlocked(world_id: StringName, index: int) -> bool:
+	return index == 0 or best_stars(world_id, index - 1) > 0
+
+
+static func world_stars(world: WorldData) -> int:
+	var total := 0
+	for i in world.levels.size():
+		total += best_stars(world.id, i)
+	return total
+
+
 static func _key(index: int) -> String:
 	return "level_%02d" % (index + 1)

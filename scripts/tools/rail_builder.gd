@@ -37,7 +37,7 @@ func move_to(target: Vector2i) -> void:
 	# Alvo já no rastro: desenrola até ele (independe do caminho do mouse).
 	# Estações ficam de fora: revisitá-las é cruzamento, não recuo.
 	var index := _trail.rfind(target)
-	if index != -1 and not _model.has_station(target):
+	if index != -1 and not _revisitable(target):
 		while _trail.size() - 1 > index:
 			_undo_last()
 		return
@@ -49,7 +49,7 @@ func move_to(target: Vector2i) -> void:
 func end_stroke() -> void:
 	# Clique sem arraste num trilho existente = rotação (estações ignoram).
 	if _active and not _moved and not _first_created:
-		_model.rotate_rail(_trail[0])
+		_model.rotate_piece(_trail[0])
 	_reset()
 
 
@@ -63,7 +63,7 @@ func _build_step(next: Vector2i) -> bool:
 	if not _model.is_node(next):
 		return false
 	# Só estações podem ser revisitadas no mesmo traço (cruzamento).
-	if next in _trail and not _model.has_station(next):
+	if next in _trail and not _revisitable(next):
 		return false
 
 	var dir := GridModel.dir_between(last, next)
@@ -101,16 +101,24 @@ func _build_step(next: Vector2i) -> bool:
 ## larga o lado "depois" (rumo ao Exit) e mantém o lado do Spawn.
 ## O formato anterior fica no rastro, então voltar à célula restaura a ligação.
 func _cut_for_reroute(cell: Vector2i, links: int, dir: int) -> int:
-	if not _model.has_rail(cell) or _model.is_terminal(cell):
+	if not _model.has_rail(cell) or _model.is_terminal(cell) \
+			or GridModel.is_junction(_model.get_shape(cell)):
 		return links
 	if GridModel.bit_count(links) != 2 or (links & dir) != 0:
 		return links
 	return links & ~RouteOrientation.after_dir(_model, cell)
 
 
+## Estação (cruzamento) e agulha (laço/junção) podem aparecer duas vezes no traço.
+func _revisitable(cell: Vector2i) -> bool:
+	return _model.has_station(cell) or _model.has_switch(cell)
+
+
 func _shape_toward(cell: Vector2i, keep: int, dir: int) -> int:
 	if _model.has_station(cell):
 		return KEEP
+	if _model.has_switch(cell):
+		return KEEP if _model.opens_to(cell, dir) else NO_SHAPE
 	if _model.is_terminal(cell):
 		return KEEP if _model.opens_to(cell, dir) else NO_SHAPE
 	var others := keep & ~dir
@@ -119,7 +127,34 @@ func _shape_toward(cell: Vector2i, keep: int, dir: int) -> int:
 			return dir | GridModel.OPPOSITE[dir]
 		1:
 			return dir | others
+		2:
+			return _junction_toward(cell, others, dir)
 	return NO_SHAPE
+
+
+## Chegar pela lateral de um trilho já ligado dos dois lados vira T.
+## A perna é o lado sem oposto. Se já havia uma curva saindo pela perna, ela é
+## mantida; senão a curva desemboca no braço "depois" (rumo ao Exit).
+func _junction_toward(cell: Vector2i, others: int, dir: int) -> int:
+	var mask := others | dir
+	var stem := 0
+	for d in GridModel.DIR_OFFSETS:
+		if (mask & d) != 0 and (mask & GridModel.OPPOSITE[d]) == 0:
+			stem = d
+	if stem == 0:
+		return NO_SHAPE
+	var bar: int = mask & ~stem
+	var before := _model.get_shape(cell)
+	var arm := 0
+	if GridModel.is_junction(before) and GridModel.junction_stem(before) == stem:
+		arm = GridModel.junction_arm(before)
+	elif (before & stem) != 0 and GridModel.bit_count(before & bar) == 1:
+		arm = before & bar # era curva: a curva vira a perna do T
+	else:
+		arm = RouteOrientation.after_dir(_model, cell) & bar
+	if arm == 0:
+		arm = GridModel.Dir.EAST if (bar & GridModel.Dir.EAST) != 0 else GridModel.Dir.SOUTH
+	return GridModel.make_junction(stem, arm)
 
 
 func _undo_last() -> void:

@@ -508,7 +508,7 @@ static func _faceted_arrays(arrays: Array) -> ArrayMesh:
 		var c := verts[i2]
 		var n := (b - a).cross(c - a)
 		if n.length_squared() < 1e-10:
-			continue # triângulo degenerado (ponta de cone)
+			continue
 		n = n.normalized()
 		if n.dot(normals[i0] + normals[i1] + normals[i2]) < 0.0:
 			n = -n
