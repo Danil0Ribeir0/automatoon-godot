@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameCatalog" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/game_catalog.gd" id="1_cat"]
+[ext_resource type="Script" path="res://scripts/levels/world_data.gd" id="2_wd"]
+[ext_resource type="Resource" path="res://resources/worlds/world_1.tres" id="3_w1"]
+[ext_resource type="Resource" path="res://resources/worlds/world_2.tres" id="4_w2"]
+
+[resource]
+script = ExtResource("1_cat")
+worlds = Array[ExtResource("2_wd")]([ExtResource("3_w1"), ExtResource("4_w2")])
+upcoming_worlds = 1

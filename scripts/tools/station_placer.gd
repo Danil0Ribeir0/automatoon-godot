@@ -13,7 +13,7 @@ func _init(model: GridModel) -> void:
 
 
 func begin(cell: Vector2i) -> void:
-	if symbol.is_empty() or not _model.in_bounds(cell) or _model.is_locked(cell):
+	if symbol.is_empty() or not _model.in_bounds(cell) or _model.is_locked(cell) or _model.has_switch(cell):
 		return
 	if _model.has_station(cell):
 		_model.set_station_symbol(cell, symbol)
@@ -26,6 +26,6 @@ func preview(cell: Vector2i) -> int:
 		return Preview.HIDDEN
 	if _model.is_locked(cell):
 		return Preview.INVALID
-	if _model.has_station(cell):
+	if _model.has_station(cell) or _model.has_switch(cell):
 		return Preview.HIDDEN
 	return Preview.VALID if _model.can_place_station(cell) else Preview.INVALID

@@ -6,6 +6,12 @@ signal tool_requested(tool: int, symbol: StringName)
 signal test_requested
 signal restart_requested
 
+## Situação de cada trem da fila (▶ andando, ✔ certo, ✖ errado).
+enum Mark { NONE, RUNNING, PASSED, FAILED }
+
+const TOOL_BUTTON := preload("res://scenes/ui/ToolButton.tscn")
+const SWITCH_SCENE := preload("res://scenes/switches/Switch.tscn")
+
 @onready var _test_button: ToolButton = $TestButton
 @onready var _reset_button: ToolButton = $ResetButton
 ## Mensagem do resultado, logo acima dos botões. RichTextLabel para colorir o símbolo.
@@ -13,8 +19,10 @@ signal restart_requested
 @onready var _rail_button: ToolButton = $ToolBar/RailButton
 @onready var _station_button: ToolButton = $ToolBar/StationButton
 
+var _switch_button: ToolButton
 var _group := ButtonGroup.new()
 var _station_enabled := true
+var _switch_enabled := false
 ## id do símbolo -> SymbolDefinition (para pintar o ícone da estação).
 var _symbol_defs := {}
 
@@ -32,15 +40,23 @@ var _current_symbol: StringName = &""
 # Painel de informações da fase (canto superior esquerdo), criado por código.
 var _info: VBoxContainer
 var _title_label: Label
-var _word_strip: HBoxContainer
+# OBJETIVO (topo central) com o trem da vez + FILA de trens no canto superior direito.
+var _goal_current: HBoxContainer
+var _next_panel: VBoxContainer
+var _next_list: VBoxContainer
+var _trains: Array[TrainDefinition] = []
+var _marks: Array[int] = []
+## Trem mostrado em destaque (o que está andando, ou o primeiro).
+var _focus := 0
 var _rail_count: Label
 var _par_label: Label
 var _par := 0
 
 
-func setup(symbols: Array[StringName], station_enabled: bool,
+func setup(symbols: Array[StringName], station_enabled: bool, switch_enabled := false,
 		definitions: Array[SymbolDefinition] = []) -> void:
 	_station_enabled = station_enabled
+	_switch_enabled = switch_enabled
 	for definition in definitions:
 		_symbol_defs[definition.id] = definition
 	# Permite clicar no botão já ativo (Estação ativa + clique = próximo símbolo).
@@ -51,6 +67,9 @@ func setup(symbols: Array[StringName], station_enabled: bool,
 	# Símbolo vazio = o router mantém o último símbolo usado.
 	_rail_button.pressed.connect(func(): tool_requested.emit(ToolRouter.ToolId.RAIL, &""))
 	_station_button.pressed.connect(func(): tool_requested.emit(ToolRouter.ToolId.STATION, &""))
+
+	if switch_enabled:
+		_add_switch_button()
 
 	_station_button.set_available(station_enabled)
 	_station_button.set_symbol(String(symbols[0]) if not symbols.is_empty() else "–", false)
@@ -72,6 +91,8 @@ func show_active_tool(tool: int, symbol: StringName) -> void:
 	# Marca os dois explicitamente: set_pressed_no_signal não atualiza o ButtonGroup.
 	_rail_button.set_pressed_no_signal(tool == ToolRouter.ToolId.RAIL)
 	_station_button.set_pressed_no_signal(tool == ToolRouter.ToolId.STATION)
+	if _switch_button:
+		_switch_button.set_pressed_no_signal(tool == ToolRouter.ToolId.SWITCH)
 	if tool == ToolRouter.ToolId.STATION:
 		if symbol != _current_symbol:
 			_learned_symbol_switch = true # trocou: já aprendeu, a dica não volta
@@ -79,6 +100,26 @@ func show_active_tool(tool: int, symbol: StringName) -> void:
 		_station_button.set_symbol(String(symbol), true)
 		_paint_station_icon(symbol)
 	_update_symbol_hint(tool == ToolRouter.ToolId.STATION)
+
+
+## Botão Agulha (tecla 3), só nas fases com agulha. Mesmo estilo dos outros:
+## modelo 3D da agulha no lugar do texto, com os ramos 0 e 1 coloridos.
+func _add_switch_button() -> void:
+	_switch_button = TOOL_BUTTON.instantiate()
+	_switch_button.key_hint = "3"
+	_switch_button.icon_model = SWITCH_SCENE
+	_switch_button.model_hide_labels = false # os números dos ramos fazem parte do ícone
+	_switch_button.model_yaw = 0.0
+	_switch_button.model_tilt = 45.0
+	_switch_button.model_padding = 1.0
+	_switch_button.content_margin = 4
+	_switch_button.button_group = _group
+	_switch_button.pressed.connect(func(): tool_requested.emit(ToolRouter.ToolId.SWITCH, &""))
+	_rail_button.get_parent().add_child(_switch_button)
+	var view := _switch_button.get_icon_model() as SwitchView
+	if view:
+		# Tronco à esquerda, reto para a direita, desvio para baixo.
+		view.apply(SwitchData.new(GridModel.Dir.WEST, GridModel.Dir.SOUTH, &"0"), _symbol_defs, false)
 
 
 func _build_symbol_hint() -> void:
@@ -112,16 +153,65 @@ func _paint_station_icon(symbol: StringName) -> void:
 		view.apply(definition, false)
 
 
-## Título da fase, palavra do trem (vagões na ordem de leitura) e meta de trilhos.
-func show_level(title: String, wagons: Array[SymbolDefinition], par: int) -> void:
+## Título da fase, fila de trens (palavra + chegar/barrar) e meta de trilhos.
+func show_level(title: String, trains: Array[TrainDefinition], par: int) -> void:
 	_ensure_info()
 	_title_label.text = title
 	_title_label.visible = not title.is_empty()
 	_par = par
-	for chip in _word_strip.get_children():
-		chip.queue_free()
-	for definition in wagons:
-		_word_strip.add_child(_make_chip(definition))
+	_trains = trains
+	_marks.clear()
+	_marks.resize(trains.size())
+	_marks.fill(Mark.NONE)
+	_focus = 0
+	_render_goal()
+
+
+func mark_train(index: int, mark: Mark) -> void:
+	if index < 0 or index >= _marks.size():
+		return
+	_marks[index] = mark
+	if mark == Mark.RUNNING:
+		_focus = index # o trem que vai andar passa para o destaque
+	_render_goal()
+
+
+func clear_marks() -> void:
+	_marks.fill(Mark.NONE)
+	_focus = 0
+	_render_goal()
+
+
+## Redesenha o OBJETIVO (só os vagões do trem da vez) e a FILA no canto
+## superior direito: todos os trens em ordem, o da vez marcado com ▶ e os que
+## já passaram apagados. Deixa claro que são viagens separadas, uma de cada vez.
+func _render_goal() -> void:
+	if _goal_current == null:
+		return
+	for child in _goal_current.get_children():
+		child.queue_free()
+	for child in _next_list.get_children():
+		child.queue_free()
+	if _trains.is_empty():
+		return
+	for definition in _trains[_focus].wagons:
+		_goal_current.add_child(_make_chip(definition, 52))
+	for i in _trains.size():
+		var row := HBoxContainer.new()
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.alignment = BoxContainer.ALIGNMENT_END
+		row.add_theme_constant_override("separation", 4)
+		var pointer := _make_label(20)
+		pointer.text = "▶" if i == _focus else ""
+		pointer.custom_minimum_size = Vector2(22, 0)
+		pointer.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(pointer)
+		for definition in _trains[i].wagons:
+			row.add_child(_make_chip(definition, 30))
+		if i < _focus:
+			row.modulate.a = 0.35 # já passou
+		_next_list.add_child(row)
+	_next_panel.visible = _trains.size() > 1
 
 
 func show_rail_count(count: int) -> void:
@@ -204,11 +294,37 @@ func _build_goal_panel() -> void:
 	title.add_theme_color_override("font_color", Color("f3e7b3"))
 	column.add_child(title)
 
-	_word_strip = HBoxContainer.new()
-	_word_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_word_strip.alignment = BoxContainer.ALIGNMENT_CENTER
-	_word_strip.add_theme_constant_override("separation", 8)
-	column.add_child(_word_strip)
+	_goal_current = HBoxContainer.new()
+	_goal_current.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_goal_current.alignment = BoxContainer.ALIGNMENT_CENTER
+	_goal_current.add_theme_constant_override("separation", 8)
+	column.add_child(_goal_current)
+
+	_build_next_panel()
+
+
+## FILA de trens no canto superior direito, alinhada à direita.
+func _build_next_panel() -> void:
+	_next_panel = VBoxContainer.new()
+	_next_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_next_panel.add_theme_constant_override("separation", 4)
+	_next_panel.visible = false
+	add_child(_next_panel)
+	_next_panel.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_next_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_next_panel.offset_right = -24
+	_next_panel.offset_top = 20
+
+	var caption := _make_label(14)
+	caption.text = "FILA"
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	caption.add_theme_color_override("font_color", Color("f3e7b3"))
+	_next_panel.add_child(caption)
+
+	_next_list = VBoxContainer.new()
+	_next_list.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_next_list.add_theme_constant_override("separation", 4)
+	_next_panel.add_child(_next_list)
 
 
 func _make_label(size: int) -> Label:
@@ -221,17 +337,19 @@ func _make_label(size: int) -> Label:
 
 
 ## Vagão da palavra: quadradinho na cor do símbolo, com o símbolo escrito.
-func _make_chip(definition: SymbolDefinition) -> Control:
+func _make_chip(definition: SymbolDefinition, size := 52) -> Control:
 	var chip := PanelContainer.new()
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	chip.custom_minimum_size = Vector2(52, 52)
+	chip.custom_minimum_size = Vector2(size, size)
 	var box := StyleBoxFlat.new()
 	box.bg_color = definition.color if definition else Color.MAGENTA
 	box.border_color = Color("17345a")
-	box.set_border_width_all(3)
-	box.set_corner_radius_all(8)
+	box.set_border_width_all(3 if size > 40 else 2)
+	box.set_corner_radius_all(8 if size > 40 else 5)
 	chip.add_theme_stylebox_override("panel", box)
-	var label := _make_label(30)
+	var label := _make_label(int(size * 0.58))
+	if size < 30:
+		label.add_theme_constant_override("outline_size", 4) # contorno fino nos pequenos
 	label.text = String(definition.id) if definition else "?"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -243,13 +361,25 @@ func _make_chip(definition: SymbolDefinition) -> Control:
 func set_editing_enabled(enabled: bool) -> void:
 	_rail_button.set_available(enabled)
 	_station_button.set_available(enabled and _station_enabled)
+	if _switch_button:
+		_switch_button.set_available(enabled)
 	_test_button.set_available(enabled)
 
 
-func show_result(result: ValidationResult) -> void:
-	_result_label.text = "[center]%s[/center]" % _describe(result)
-	_result_label.add_theme_color_override("default_color",
-			Color("7dff8a") if result.success else Color("ff7a7a"))
+## Resultado final da fila. `train_index` = trem que divergiu (-1 = todos certos).
+func show_result(result: ValidationResult, train_index := -1, expected_accept := true, total := 1) -> void:
+	var ok := train_index < 0
+	var text := ""
+	if ok:
+		text = "Chegou ao destino!" if total <= 1 else "Todos os trens corretos!"
+	elif not expected_accept:
+		text = "Esse trem devia ser barrado, mas chegou à chegada"
+	else:
+		text = _describe(result)
+	if not ok and total > 1:
+		text = "Trem %d: %s" % [train_index + 1, text]
+	_result_label.text = "[center]%s[/center]" % text
+	_result_label.add_theme_color_override("default_color", Color("7dff8a") if ok else Color("ff7a7a"))
 
 
 ## Mostra a dica no lugar da mensagem de resultado enquanto o trem anda.

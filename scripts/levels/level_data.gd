@@ -14,8 +14,15 @@ const TWO_STAR_MARGIN := 2
 @export var available_symbols: Array[SymbolDefinition] = []
 @export var fixed_stations: Array[StationPlacement] = []
 
+@export_group("Agulhas")
+@export var switch_tool_enabled := false
+@export var fixed_switches: Array[SwitchPlacement] = []
+
 @export_group("Trem")
+## Fase de um trem só (Mundo 1). Se `trains` tiver itens, ele é ignorado.
 @export var train: TrainDefinition
+## Fila de trens: todos precisam bater com o esperado (chegar ou ser barrado).
+@export var trains: Array[TrainDefinition] = []
 
 @export_group("Estrelas")
 ## Menor número de trilhos possível (★★★ até aqui). 0 = sempre 3 estrelas.
@@ -35,6 +42,15 @@ func get_symbol_ids() -> Array[StringName]:
 	for def in available_symbols:
 		ids.append(def.id)
 	return ids
+
+
+func get_trains() -> Array[TrainDefinition]:
+	if not trains.is_empty():
+		return trains
+	var single: Array[TrainDefinition] = []
+	if train:
+		single.append(train)
+	return single
 
 
 func stars_for(rails: int) -> int:
