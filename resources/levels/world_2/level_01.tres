@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="LevelData" format=3]
+
+[ext_resource type="Script" uid="uid://da6c07r64e8jd" path="res://scripts/levels/level_data.gd" id="1_ld"]
+[ext_resource type="Script" uid="uid://m0simrvj36vn" path="res://scripts/levels/symbol_definition.gd" id="2_sd"]
+[ext_resource type="Script" uid="uid://dhw7vdw0qgcfv" path="res://scripts/levels/station_placement.gd" id="3_sp"]
+[ext_resource type="Script" uid="uid://c30h3m3lt2nks" path="res://scripts/levels/train_definition.gd" id="4_td"]
+[ext_resource type="Resource" uid="uid://y5nnvhjd550j" path="res://resources/symbols/symbol_0.tres" id="5_s0"]
+[ext_resource type="Resource" uid="uid://drqhgypurb7oi" path="res://resources/symbols/symbol_1.tres" id="6_s1"]
+[ext_resource type="Script" path="res://scripts/levels/switch_placement.gd" id="7_swp"]
+
+[sub_resource type="Resource" id="Train_1"]
+script = ExtResource("4_td")
+wagons = Array[ExtResource("2_sd")]([ExtResource("5_s0")])
+expect_accept = true
+
+[sub_resource type="Resource" id="Train_2"]
+script = ExtResource("4_td")
+wagons = Array[ExtResource("2_sd")]([ExtResource("6_s1")])
+expect_accept = true
+
+[sub_resource type="Resource" id="Fixed_1"]
+script = ExtResource("3_sp")
+cell = Vector2i(2, 2)
+symbol = ExtResource("5_s0")
+
+[sub_resource type="Resource" id="Fixed_2"]
+script = ExtResource("3_sp")
+cell = Vector2i(2, 0)
+symbol = ExtResource("6_s1")
+
+[sub_resource type="Resource" id="Switch_1"]
+script = ExtResource("7_swp")
+cell = Vector2i(1, 2)
+trunk = 8
+diverge = 1
+straight_symbol = &"0"
+locked = true
+
+[sub_resource type="Resource" id="Switch_2"]
+script = ExtResource("7_swp")
+cell = Vector2i(3, 2)
+trunk = 2
+diverge = 1
+straight_symbol = &"0"
+locked = true
+
+[resource]
+script = ExtResource("1_ld")
+title = "A agulha"
+grid_size = Vector2i(5, 5)
+blocked_cells = Array[Vector2i]([Vector2i(2, 4), Vector2i(0, 4)])
+station_tool_enabled = false
+available_symbols = Array[ExtResource("2_sd")]([ExtResource("5_s0"), ExtResource("6_s1")])
+fixed_stations = Array[ExtResource("3_sp")]([SubResource("Fixed_1"), SubResource("Fixed_2")])
+switch_tool_enabled = false
+fixed_switches = Array[ExtResource("7_swp")]([SubResource("Switch_1"), SubResource("Switch_2")])
+trains = Array[ExtResource("4_td")]([SubResource("Train_1"), SubResource("Train_2")])
+par_rails = 6

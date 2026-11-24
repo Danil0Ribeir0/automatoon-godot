@@ -19,7 +19,22 @@ const _SHAPES := {
 @onready var _curve: Node3D = $Curve
 
 func apply_shape(shape: int) -> void:
+	if GridModel.is_junction(shape):
+		_apply_junction(shape)
+		return
+	_straight.rotation_degrees.y = 0.0
 	var data: Array = _SHAPES.get(shape, _SHAPES[GridModel.HORIZONTAL])
 	_curve.visible = data[0]
 	_straight.visible = not data[0]
 	rotation_degrees.y = data[1]
+
+
+
+## T = a curva (perna → braço) + a reta da barra, sobrepostas como num desvio real.
+func _apply_junction(shape: int) -> void:
+	var curve: int = GridModel.junction_stem(shape) | GridModel.junction_arm(shape)
+	_curve.visible = true
+	_straight.visible = true
+	rotation_degrees.y = _SHAPES[curve][1]
+	var bar_angle: float = _SHAPES[GridModel.junction_bar(shape)][1]
+	_straight.rotation_degrees.y = bar_angle - rotation_degrees.y

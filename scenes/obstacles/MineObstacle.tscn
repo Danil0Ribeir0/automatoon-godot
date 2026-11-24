@@ -1,0 +1,118 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/view/obstacle_view.gd" id="1_obst"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_patch"]
+albedo_color = Color(0.42, 0.37, 0.31, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock"]
+albedo_color = Color(0.55, 0.52, 0.49, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_rock_dark"]
+albedo_color = Color(0.42, 0.4, 0.38, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_crystal"]
+albedo_color = Color(0.37, 0.72, 1, 1)
+roughness = 0.2
+emission_enabled = true
+emission = Color(0.2, 0.45, 0.8, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_timber"]
+albedo_color = Color(0.48, 0.33, 0.2, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_patch"]
+material = SubResource("Mat_patch")
+size = Vector3(0.9, 0.012, 0.9)
+
+[sub_resource type="SphereMesh" id="Mesh_rock_big"]
+material = SubResource("Mat_rock")
+radius = 0.24
+height = 0.32
+radial_segments = 6
+rings = 3
+
+[sub_resource type="SphereMesh" id="Mesh_rock_mid"]
+material = SubResource("Mat_rock_dark")
+radius = 0.16
+height = 0.2
+radial_segments = 5
+rings = 3
+
+[sub_resource type="CylinderMesh" id="Mesh_crystal"]
+material = SubResource("Mat_crystal")
+top_radius = 0.0
+bottom_radius = 0.07
+height = 0.34
+radial_segments = 5
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_crystal_small"]
+material = SubResource("Mat_crystal")
+top_radius = 0.0
+bottom_radius = 0.05
+height = 0.22
+radial_segments = 5
+rings = 0
+
+[sub_resource type="CylinderMesh" id="Mesh_log"]
+material = SubResource("Mat_timber")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.6
+radial_segments = 6
+rings = 0
+
+[node name="MineObstacle" type="Node3D"]
+script = ExtResource("1_obst")
+variants = PackedStringArray("Rocks", "Crystals", "Timber")
+
+[node name="Patch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.006, 0)
+mesh = SubResource("Mesh_patch")
+
+[node name="Rocks" type="Node3D" parent="."]
+
+[node name="Big" type="MeshInstance3D" parent="Rocks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06, 0.13, 0.03)
+mesh = SubResource("Mesh_rock_big")
+
+[node name="Mid" type="MeshInstance3D" parent="Rocks"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.08, -0.14)
+mesh = SubResource("Mesh_rock_mid")
+
+[node name="Crystals" type="Node3D" parent="."]
+
+[node name="Base" type="MeshInstance3D" parent="Crystals"]
+transform = Transform3D(1, 0, 0, 0, 0.6, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("Mesh_rock_mid")
+
+[node name="C1" type="MeshInstance3D" parent="Crystals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
+mesh = SubResource("Mesh_crystal")
+
+[node name="C2" type="MeshInstance3D" parent="Crystals"]
+transform = Transform3D(0.94, -0.34, 0, 0.34, 0.94, 0, 0, 0, 1, 0.1, 0.16, 0.05)
+mesh = SubResource("Mesh_crystal_small")
+
+[node name="C3" type="MeshInstance3D" parent="Crystals"]
+transform = Transform3D(1, 0, 0, 0, 0.94, 0.34, 0, -0.34, 0.94, -0.06, 0.15, -0.1)
+mesh = SubResource("Mesh_crystal_small")
+
+[node name="Timber" type="Node3D" parent="."]
+
+[node name="Log1" type="MeshInstance3D" parent="Timber"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.06, -0.08)
+mesh = SubResource("Mesh_log")
+
+[node name="Log2" type="MeshInstance3D" parent="Timber"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.06, 0.06)
+mesh = SubResource("Mesh_log")
+
+[node name="Log3" type="MeshInstance3D" parent="Timber"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.17, -0.01)
+mesh = SubResource("Mesh_log")

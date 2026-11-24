@@ -12,6 +12,7 @@ signal hover_changed(cell: Vector2i)
 
 signal rail_tool_requested
 signal station_tool_requested
+signal switch_tool_requested
 ## +1 = próximo símbolo, -1 = anterior.
 signal symbol_scrolled(step: int)
 signal test_requested
@@ -59,6 +60,8 @@ func _handle_key(event: InputEventKey) -> void:
 			rail_tool_requested.emit()
 		KEY_2:
 			station_tool_requested.emit()
+		KEY_3:
+			switch_tool_requested.emit()
 		KEY_SPACE, KEY_ENTER, KEY_KP_ENTER: # Espaço é o principal; Enter por instinto
 			test_requested.emit()
 		KEY_R:
