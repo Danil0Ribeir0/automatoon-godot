@@ -23,16 +23,18 @@ var _tween: Tween
 var _park_at := 0.0
 ## Já está estacionado: editar o tabuleiro não precisa recriar os vagões.
 var _parked := false
+var _parked_wagons: Array[SymbolDefinition] = []
 
 
 ## Trem parado nos trilhos antes do Spawn, esperando o teste.
 ## `spawn_step` = passo do Spawn com exit_dir apontando para dentro da grid.
 func park(spawn_step: PathStep, wagons: Array[SymbolDefinition], board: GridBoard) -> void:
-	if _parked:
+	if _parked and _parked_wagons == wagons:
 		return
 	_build([spawn_step], wagons, board)
 	_set_distance(_park_at)
 	_parked = true
+	_parked_wagons = wagons
 
 
 ## Retorna false se não há o que animar (o chamador não deve esperar `finished`).

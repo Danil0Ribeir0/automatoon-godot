@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WorldTheme" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/world_theme.gd" id="1_th"]
+[ext_resource type="PackedScene" path="res://scenes/scenery/MineScenery.tscn" id="2_sc"]
+[ext_resource type="PackedScene" path="res://scenes/terminals/MineEntrance.tscn" id="3_te"]
+[ext_resource type="PackedScene" path="res://scenes/wagons/MineCart.tscn" id="4_wa"]
+[ext_resource type="PackedScene" path="res://scenes/obstacles/MineObstacle.tscn" id="5_ob"]
+
+[resource]
+script = ExtResource("1_th")
+scenery_scene = ExtResource("2_sc")
+terminal_scene = ExtResource("3_te")
+wagon_scene = ExtResource("4_wa")
+obstacle_scene = ExtResource("5_ob")
+ground_color = Color(0.74, 0.66, 0.54, 1)
+line_color = Color(0.3, 0.22, 0.15, 1)

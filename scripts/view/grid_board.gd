@@ -5,6 +5,7 @@ extends Node3D
 @export var rail_piece_scene: PackedScene
 @export var station_scene: PackedScene
 @export var obstacle_scene: PackedScene
+@export var switch_scene: PackedScene
 ## Túnel do Spawn/Exit. Sem cena atribuída, desenha caixas coloridas.
 @export var terminal_scene: PackedScene
 ## Alfabeto do jogo: cor de cada estação pelo símbolo.
@@ -23,6 +24,8 @@ var _model: GridModel
 var _pieces: Dictionary = {} # Vector2i -> RailPiece
 var _station_views: Dictionary = {} # Vector2i -> StationView
 var _obstacle_views: Dictionary = {} # Vector2i -> ObstacleView
+var _switch_views: Dictionary = {} # Vector2i -> SwitchView
+var _switch_preview: SwitchView
 var _symbol_lookup: Dictionary = {} # StringName -> SymbolDefinition
 var _preview: StationView
 var _error_marker: MeshInstance3D
@@ -57,16 +60,22 @@ func world_to_cell(world_pos: Vector3) -> Vector2i:
 
 
 ## Mostra ou esconde o fantasma de colocação (estado = BuildTool.Preview).
-func show_preview(cell: Vector2i, state: int) -> void:
-	if _preview == null:
+## Mostra ou esconde o fantasma de colocação (estado = BuildTool.Preview).
+## `tool` = ToolRouter.ToolId: a Agulha tem fantasma próprio; o resto usa o da estação.
+func show_preview(cell: Vector2i, state: int, tool: int = 1) -> void:
+	var use_switch := tool == ToolRouter.ToolId.SWITCH and _switch_preview != null
+	var ghost: Node3D = _switch_preview if use_switch else _preview
+	var other: Node3D = _preview if use_switch else _switch_preview
+	if other:
+		other.visible = false
+	if ghost == null:
 		return
 	if state == BuildTool.Preview.HIDDEN:
-		_preview.visible = false
+		ghost.visible = false
 		return
-	_preview.position = _cell_to_local(cell)
-	_preview.apply_ghost(
-		ghost_valid_color if state == BuildTool.Preview.VALID else ghost_invalid_color)
-	_preview.visible = true
+	ghost.position = _cell_to_local(cell)
+	ghost.call("apply_ghost", ghost_valid_color if state == BuildTool.Preview.VALID else ghost_invalid_color)
+	ghost.visible = true
 
 
 func pulse_station(cell: Vector2i) -> void:
@@ -112,6 +121,7 @@ func _on_cell_changed(cell: Vector2i) -> void:
 	_sync_rail(cell)
 	_sync_station(cell)
 	_sync_obstacle(cell)
+	_sync_switch(cell)
 
 
 func _sync_rail(cell: Vector2i) -> void:
@@ -141,6 +151,20 @@ func _sync_station(cell: Vector2i) -> void:
 			return
 		_station_views[cell] = view
 	view.apply(_symbol_lookup.get(station.symbol), _model.is_locked(cell))
+
+
+func _sync_switch(cell: Vector2i) -> void:
+	var sw := _model.get_switch(cell)
+	if sw == null:
+		_free_view(_switch_views, cell)
+		return
+	var view: SwitchView = _switch_views.get(cell)
+	if view == null:
+		view = _spawn_view(switch_scene, cell) as SwitchView
+		if view == null:
+			return
+		_switch_views[cell] = view
+	view.apply(sw, _symbol_lookup, _model.is_locked(cell))
 
 
 func _sync_obstacle(cell: Vector2i) -> void:
@@ -185,6 +209,14 @@ func _create_preview() -> void:
 	_preview.scale = Vector3.ONE * cell_size
 	_preview.visible = false
 	add_child(_preview)
+	if switch_scene:
+		_switch_preview = switch_scene.instantiate() as SwitchView
+		if _switch_preview:
+			_switch_preview.name = "SwitchPreview"
+			_switch_preview.scale = Vector3.ONE * cell_size
+			_switch_preview.visible = false
+			add_child(_switch_preview)
+			_switch_preview.apply(SwitchData.new(GridModel.Dir.WEST, GridModel.Dir.NORTH, &"0"), _symbol_lookup, false)
 
 
 # --- Visual do tabuleiro ---------------------------------------------------

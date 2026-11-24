@@ -6,6 +6,7 @@ extends CanvasLayer
 
 signal retry_requested
 signal next_requested
+signal menu_requested
 
 const TOOL_BUTTON := preload("res://scenes/ui/ToolButton.tscn")
 const STAR_ON := Color("ffd23f")
@@ -17,6 +18,7 @@ var _stars: Array[Label] = []
 var _details: Label
 var _retry: ToolButton
 var _next: ToolButton
+var _menu: ToolButton
 var _tween: Tween
 
 
@@ -31,7 +33,7 @@ func show_result(stars: int, rails: int, par: int, best: int, is_last: bool) -> 
 	var meta := "   ·   meta ★★★: %d" % par if par > 0 else ""
 	_details.text = "Trilhos usados: %d%s\nMelhor resultado: %s" % [
 			rails, meta, "★".repeat(best) + "☆".repeat(3 - best)]
-	_next.text = "Recomeçar" if is_last else "Próxima"
+	_next.visible = not is_last
 	_root.visible = true
 
 	if _tween:
@@ -45,6 +47,10 @@ func show_result(stars: int, rails: int, par: int, best: int, is_last: bool) -> 
 		if i < stars:
 			_tween.tween_property(star, "scale", Vector2.ONE, 0.25) \
 					.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func is_open() -> bool:
+	return _root != null and _root.visible
 
 
 func hide_panel() -> void:
@@ -111,10 +117,13 @@ func _build() -> void:
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 40)
+	_menu = _button("Fases", "Esc")
 	_retry = _button("Repetir", "R")
 	_next = _button("Próxima", "N")
+	buttons.add_child(_menu)
 	buttons.add_child(_retry)
 	buttons.add_child(_next)
+	_menu.pressed.connect(func(): menu_requested.emit())
 	column.add_child(buttons)
 	_retry.pressed.connect(func(): retry_requested.emit())
 	_next.pressed.connect(func(): next_requested.emit())

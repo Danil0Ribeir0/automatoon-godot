@@ -1,0 +1,104 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/train/wagon_view.gd" id="1_wv"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_iron"]
+albedo_color = Color(0.32, 0.32, 0.35, 1)
+roughness = 0.7
+metallic = 0.3
+
+[sub_resource type="StandardMaterial3D" id="Mat_iron_dark"]
+albedo_color = Color(0.2, 0.2, 0.22, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_ore"]
+albedo_color = Color(1, 1, 1, 1)
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="Mesh_body"]
+material = SubResource("Mat_iron")
+size = Vector3(0.36, 0.17, 0.5)
+
+[sub_resource type="BoxMesh" id="Mesh_rim"]
+material = SubResource("Mat_iron_dark")
+size = Vector3(0.41, 0.035, 0.55)
+
+[sub_resource type="BoxMesh" id="Mesh_chassis"]
+material = SubResource("Mat_iron_dark")
+size = Vector3(0.3, 0.04, 0.52)
+
+[sub_resource type="CylinderMesh" id="Mesh_wheel"]
+material = SubResource("Mat_iron_dark")
+top_radius = 0.06
+bottom_radius = 0.06
+height = 0.03
+radial_segments = 8
+rings = 0
+
+[sub_resource type="SphereMesh" id="Mesh_lump_big"]
+material = SubResource("Mat_ore")
+radius = 0.12
+height = 0.16
+radial_segments = 6
+rings = 3
+
+[sub_resource type="SphereMesh" id="Mesh_lump"]
+material = SubResource("Mat_ore")
+radius = 0.08
+height = 0.11
+radial_segments = 5
+rings = 2
+
+[node name="MineCart" type="Node3D"]
+script = ExtResource("1_wv")
+tinted_parts = Array[NodePath]([NodePath("Load")])
+
+[node name="Chassis" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11, 0)
+mesh = SubResource("Mesh_chassis")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.215, 0)
+mesh = SubResource("Mesh_body")
+
+[node name="Rim" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+mesh = SubResource("Mesh_rim")
+
+[node name="Load" type="Node3D" parent="."]
+
+[node name="Lump1" type="MeshInstance3D" parent="Load"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, -0.06)
+mesh = SubResource("Mesh_lump_big")
+
+[node name="Lump2" type="MeshInstance3D" parent="Load"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, 0.32, 0.12)
+mesh = SubResource("Mesh_lump")
+
+[node name="Lump3" type="MeshInstance3D" parent="Load"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.32, 0.1)
+mesh = SubResource("Mesh_lump")
+
+[node name="WheelFL" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.17, 0.1, -0.16)
+mesh = SubResource("Mesh_wheel")
+
+[node name="WheelFR" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.17, 0.1, -0.16)
+mesh = SubResource("Mesh_wheel")
+
+[node name="WheelBL" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.17, 0.1, 0.16)
+mesh = SubResource("Mesh_wheel")
+
+[node name="WheelBR" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, -0.17, 0.1, 0.16)
+mesh = SubResource("Mesh_wheel")
+
+[node name="SymbolLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+pixel_size = 0.005
+billboard = 1
+text = "?"
+font_size = 48
+outline_size = 12

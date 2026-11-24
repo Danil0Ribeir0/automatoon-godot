@@ -8,10 +8,16 @@ static func validate(model: GridModel, word: Array[StringName]) -> ValidationRes
 
 	var cell := model.spawn_cell
 	var entry := 0
-	# Com as regras atuais o percurso nunca entra em laço. Isto é só um teto de segurança.
-	var max_steps := model.size.x * model.size.y * 4 + 2
+	# Com agulhas o trem pode rodar num laço sem ler nada: se o mesmo estado
+	# (célula, lado de entrada, vagão atual) se repetir, ele está preso.
+	var seen := {}
+	var max_steps := model.size.x * model.size.y * 4 * (word.size() + 1) + 2
 
 	for _i in max_steps:
+		var state := Vector4i(cell.x, cell.y, entry, result.consumed)
+		if seen.has(state):
+			return result.fail(ValidationResult.Failure.LOOP, cell)
+		seen[state] = true
 		var step := PathStep.new(cell, entry)
 		result.steps.append(step)
 
@@ -35,7 +41,8 @@ static func validate(model: GridModel, word: Array[StringName]) -> ValidationRes
 			return result
 
 		# 3) Próxima célula.
-		var out := PathWalker.next_dir(model, cell, entry)
+		var next_symbol: StringName = word[result.consumed] if result.consumed < word.size() else &""
+		var out := PathWalker.next_dir(model, cell, entry, next_symbol)
 		if out == PathWalker.AMBIGUOUS:
 			return result.fail(ValidationResult.Failure.AMBIGUOUS_STATION, cell)
 		if out == 0:
