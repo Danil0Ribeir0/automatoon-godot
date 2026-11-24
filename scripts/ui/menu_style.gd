@@ -1,10 +1,31 @@
 class_name MenuStyle
 extends RefCounted
 
-## Visual comum dos menus (cartão, títulos, botões), para todos ficarem iguais.
+## Visual comum dos menus, para todos ficarem iguais.
+## Minimalista (menu inicial, fases, pausa): heading() + link(), texto solto sobre o fundo.
+## Cartão (opções): card() + label() + button().
 const TOOL_BUTTON := preload("res://scenes/ui/ToolButton.tscn")
 const CREAM := Color("f3e7b3")
 const OUTLINE := Color("17345a")
+
+
+## Título solto sobre o fundo, com sombra.
+static func heading(text: String, font_size: int, color := CREAM) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_color_override("font_color", color)
+	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.35))
+	l.add_theme_constant_override("shadow_offset_y", 4)
+	l.add_theme_constant_override("shadow_offset_x", 0)
+	return l
+
+
+## Opção em texto puro com trilho no hover (ver MenuLink).
+static func link(text: String, font_size := 26) -> MenuLink:
+	return MenuLink.new(text, font_size)
 
 
 static func card(margin := 36) -> PanelContainer:

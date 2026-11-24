@@ -3,8 +3,6 @@ extends Control
 ## Menu inicial minimalista: título e opções em texto direto sobre o fundo animado.
 const LEVEL_SELECT := "res://scenes/menu/LevelSelect.tscn"
 const OPTIONS_SCENE := preload("res://scenes/ui/OptionsMenu.tscn")
-const CREAM := Color("f3e7b3")
-const SOFT := Color(0.85, 0.91, 0.96, 0.7)
 
 var _menu: Control
 var _options: OptionsMenu
@@ -21,18 +19,18 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 4)
 	_menu.add_child(column)
 
-	column.add_child(_label("automatoon", 76, CREAM))
+	column.add_child(MenuStyle.heading("automatoon", 76))
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 28)
 	column.add_child(spacer)
 
-	var play := _link("Jogar")
+	var play := MenuStyle.link("Jogar")
 	play.pressed.connect(_on_play)
 	column.add_child(play)
-	var options := _link("Opções")
+	var options := MenuStyle.link("Opções")
 	options.pressed.connect(_open_options)
 	column.add_child(options)
-	var quit := _link("Sair")
+	var quit := MenuStyle.link("Sair")
 	quit.pressed.connect(func(): get_tree().quit())
 	column.add_child(quit)
 
@@ -73,55 +71,3 @@ func _play_intro(column: Control) -> void:
 	_menu.position.y = 18.0
 	tween.tween_property(_menu, "position:y", 0.0, 0.9).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-
-func _label(text: String, font_size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.35))
-	label.add_theme_constant_override("shadow_offset_y", 4)
-	label.add_theme_constant_override("shadow_offset_x", 0)
-	return label
-
-
-## Opção em texto puro. No hover, o texto acende e um trilho creme cresce embaixo.
-func _link(text: String) -> Button:
-	var button := Button.new()
-	button.text = text
-	button.flat = true
-	button.focus_mode = Control.FOCUS_NONE
-	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.custom_minimum_size = Vector2(180, 46)
-	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	button.add_theme_font_size_override("font_size", 26)
-	for state in ["normal", "hover", "pressed", "hover_pressed", "focus"]:
-		button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	button.add_theme_color_override("font_color", SOFT)
-	button.add_theme_color_override("font_hover_color", CREAM)
-	button.add_theme_color_override("font_pressed_color", Color.WHITE)
-	button.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
-
-	var rail := ColorRect.new()
-	rail.color = CREAM
-	rail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rail.anchor_left = 0.3
-	rail.anchor_right = 0.7
-	rail.anchor_top = 1.0
-	rail.anchor_bottom = 1.0
-	rail.offset_top = -6.0
-	rail.offset_bottom = -3.0
-	rail.scale.x = 0.0
-	button.add_child(rail)
-	rail.resized.connect(func(): rail.pivot_offset = rail.size * 0.5)
-
-	var anim := [null]
-	var slide := func(to: float) -> void:
-		if anim[0]:
-			anim[0].kill()
-		anim[0] = button.create_tween()
-		anim[0].tween_property(rail, "scale:x", to, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	button.mouse_entered.connect(slide.bind(1.0))
-	button.mouse_exited.connect(slide.bind(0.0))
-	return button

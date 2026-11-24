@@ -6,6 +6,11 @@ extends Control
 ## símbolo lido. Trens percorrem a malha escolhendo, em cada estação, o trilho do
 ## símbolo do próximo vagão. O trilho acende enquanto o trem passa e a estação
 ## solta uma onda ao recebê-lo. Animado por um Tween em laço (sem _process).
+##
+## Desempenho: desenho em camadas. Só a camada `_live` (trilhos acesos, ondas,
+## estações brilhando e trens) é redesenhada a cada frame. Fundo + grade, a malha
+## em repouso e o véu são desenhados uma vez (e de novo só ao redimensionar).
+## O parallax move a camada `_world` em vez de redesenhar.
 
 @export var bg_color := Color("0f2c45")
 @export var bg_edge_color := Color("08182a")
@@ -23,6 +28,8 @@ extends Control
 @export_range(0.0, 1.0) var focus := 0.0
 ## Véu da cor de fundo por cima do desenho (0 = nítido, 1 = some). Atenua atrás de menus cheios.
 @export_range(0.0, 1.0) var veil := 0.0
+## Cor do véu. Mais escura que o fundo = atenua e escurece ao mesmo tempo.
+@export var veil_color := Color("0f2c45")
 
 ## Estados em coordenadas normalizadas da tela, em anel pela borda (centro livre
 ## para o texto do menu). Cada estado liga aos dois vizinhos do anel, nos dois
@@ -53,6 +60,10 @@ var _tween: Tween
 var _wagon_boxes := {}
 var _vignette: GradientTexture2D
 var _focus_tex: GradientTexture2D
+var _mids := PackedVector2Array() # ponto médio de cada transição (selo do símbolo)
+var _world: Control # malha em repouso; anda com o parallax
+var _live: Control # filha de _world: só o que muda a cada frame
+var _overlay: Control # vinheta, foco e véu (estáticos)
 
 
 func _ready() -> void:
@@ -62,6 +73,9 @@ func _ready() -> void:
 			[0.0, 0.45, 1.0])
 	_focus_tex = _radial([Color(bg_edge_color, 0.85), Color(bg_edge_color, 0.5), Color(bg_edge_color, 0.0)],
 			[0.0, 0.45, 1.0], Vector2(1.0, 0.5)) # some antes da borda do retângulo
+	_world = _layer(self, _draw_world)
+	_live = _layer(_world, _draw_live)
+	_overlay = _layer(self, _draw_overlay)
 	resized.connect(_rebuild)
 	_rebuild()
 	for i in train_count:
@@ -91,14 +105,17 @@ func _tick(v: float) -> void:
 		if absf(m.x) <= 0.5 and absf(m.y) <= 0.5:
 			target -= m * parallax * 2.0
 	_offset = _offset.lerp(target, minf(dt * 2.5, 1.0))
-	queue_redraw()
+	_world.position = _offset
+	_live.queue_redraw()
 
 
 func _advance(dt: float) -> void:
 	if _paths.is_empty():
 		return
 	for edge in _heat.keys():
-		_heat[edge] = maxf(_heat[edge] - dt * 0.45, 0.0)
+		_heat[edge] -= dt * 0.45
+		if _heat[edge] <= 0.0:
+			_heat.erase(edge)
 	for i in range(_ripples.size() - 1, -1, -1):
 		_ripples[i]["t"] += dt / RIPPLE_TIME
 		if _ripples[i]["t"] >= 1.0:
@@ -151,6 +168,12 @@ func _rebuild() -> void:
 			cum.append(cum[i - 1] + pts[i - 1].distance_to(pts[i]))
 		_paths.append(pts)
 		_lengths.append(cum)
+	_mids.clear()
+	for i in EDGES.size():
+		_mids.append(_sample(i, _edge_length(i) * 0.5)[0] if _paths[i].size() > 0 else Vector2.ZERO)
+	for layer in [_world, _live, _overlay]:
+		layer.size = size
+		layer.queue_redraw()
 	queue_redraw()
 
 
@@ -186,9 +209,17 @@ func _eased(edge: int, dist: float) -> float:
 	return length * lerpf(p, p * p * (3.0 - 2.0 * p), 0.55)
 
 
+func _layer(parent: Control, painter: Callable) -> Control:
+	var layer := Control.new()
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(layer)
+	layer.draw.connect(painter.bind(layer))
+	return layer
+
+
+## Fundo + grade de pontos (planta). Estático e sem parallax.
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), bg_color)
-	# Grade de pontos (planta), sem parallax
 	var y := grid_step * 0.5
 	while y < size.y:
 		var x := grid_step * 0.5
@@ -196,58 +227,38 @@ func _draw() -> void:
 			draw_circle(Vector2(x, y), 1.4, grid_color)
 			x += grid_step
 		y += grid_step
+
+
+## Malha em repouso: trilhos apagados, seta de início e estações. Estática.
+func _draw_world(c: CanvasItem) -> void:
 	if _paths.is_empty():
 		return
-	var font := get_theme_default_font()
-	draw_set_transform(_offset)
-
-	# Transições: trilho apagado + brilho por onde o trem passou
 	for i in EDGES.size():
-		var pts := _paths[i]
-		if pts.size() < 2:
-			continue
-		var heat: float = _heat.get(i, 0.0)
-		var color := rail_color.lerp(Color(lit_color, 0.75), heat * 0.8)
-		if heat > 0.0:
-			draw_polyline(pts, Color(lit_color, 0.10 * heat), 14.0, true)
-		RailSketch.draw_rail(self, pts, color)
-		RailSketch.arrow_head(self, pts[pts.size() - 1],
-				(pts[pts.size() - 1] - pts[pts.size() - 2]).normalized(), color, 9.0)
-		var mid: Vector2 = _sample(i, _edge_length(i) * 0.5)[0]
-		var symbol: int = EDGES[i][2]
-		var badge: Color = symbol_colors[symbol]
-		draw_circle(mid, 9.0, Color(badge, 0.55 + 0.45 * heat))
-		var text := str(symbol)
-		var ts := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13)
-		draw_string(font, mid + Vector2(-ts.x * 0.5, ts.y * 0.32), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
-
-	# Seta de início em q0
+		_draw_edge(c, i, 0.0)
 	var q0 := _state_pos(0)
-	draw_line(q0 - Vector2(STATE_RADIUS + 44, 0), q0 - Vector2(STATE_RADIUS + 8, 0), Color(state_color, 0.7), 2.5, true)
-	RailSketch.arrow_head(self, q0 - Vector2(STATE_RADIUS + 4, 0), Vector2.RIGHT, Color(state_color, 0.7), 10.0)
+	c.draw_line(q0 - Vector2(STATE_RADIUS + 44, 0), q0 - Vector2(STATE_RADIUS + 8, 0), Color(state_color, 0.7), 2.5, true)
+	RailSketch.arrow_head(c, q0 - Vector2(STATE_RADIUS + 4, 0), Vector2.RIGHT, Color(state_color, 0.7), 10.0)
+	for i in STATES.size():
+		_draw_state(c, i, 0.0)
 
-	# Ondas das estações que receberam um trem
+
+## Só o que muda: trilhos acesos, ondas, estações brilhando e trens (por cima da malha).
+func _draw_live(c: CanvasItem) -> void:
+	if _paths.is_empty():
+		return
+	for edge in _heat:
+		_draw_edge(c, edge, _heat[edge])
+
+	var glow := {}
 	for r in _ripples:
 		var t: float = r["t"]
-		var c := _state_pos(r["state"])
-		var big := 1.6 if r["state"] in ACCEPTING else 1.0
+		var state: int = r["state"]
+		var big := 1.6 if state in ACCEPTING else 1.0
 		var e := 1.0 - pow(1.0 - t, 3.0)
-		draw_arc(c, STATE_RADIUS + 34.0 * big * e, 0, TAU, 48, Color(state_color, 0.45 * (1.0 - t)), 2.0, true)
-
-	# Estações (estados)
-	for i in STATES.size():
-		var c := _state_pos(i)
-		var glow := 0.0
-		for r in _ripples:
-			if r["state"] == i:
-				glow = maxf(glow, 1.0 - r["t"])
-		draw_circle(c, STATE_RADIUS, bg_color.lerp(state_color, 0.06 + 0.16 * glow))
-		draw_arc(c, STATE_RADIUS, 0, TAU, 48, Color(state_color, 0.75 + 0.25 * glow), 2.5, true)
-		if i in ACCEPTING:
-			draw_arc(c, STATE_RADIUS - 6.0, 0, TAU, 48, Color(state_color, 0.75 + 0.25 * glow), 1.6, true)
-		var label := "q%d" % i
-		var ls := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
-		draw_string(font, c + Vector2(-ls.x * 0.5, ls.y * 0.3), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, state_color)
+		c.draw_arc(_state_pos(state), STATE_RADIUS + 34.0 * big * e, 0, TAU, 48, Color(state_color, 0.45 * (1.0 - t)), 2.0, true)
+		glow[state] = maxf(glow.get(state, 0.0), 1.0 - t)
+	for state in glow:
+		_draw_state(c, state, glow[state])
 
 	# Trens: locomotiva creme na frente, vagões coloridos pelo símbolo
 	for train in _trains:
@@ -262,21 +273,55 @@ func _draw() -> void:
 				if d < 0.0:
 					continue
 			var s := _sample(edge, d)
-			draw_set_transform(s[0] + _offset, s[1])
+			c.draw_set_transform(s[0], s[1])
 			if w < 0:
-				draw_circle(Vector2(12, 0), 9.0, Color(lit_color, 0.18)) # farol
-				draw_style_box(_box(lit_color), Rect2(-9, -6.5, 19, 13))
-				draw_rect(Rect2(-7, -4, 6, 8), bg_color.darkened(0.2))
+				c.draw_circle(Vector2(12, 0), 9.0, Color(lit_color, 0.18)) # farol
+				c.draw_style_box(_box(lit_color), Rect2(-9, -6.5, 19, 13))
+				c.draw_rect(Rect2(-7, -4, 6, 8), bg_color.darkened(0.2))
 			else:
-				draw_style_box(_box(symbol_colors[word[w]]), Rect2(-8.5, -6, 17, 12))
-	draw_set_transform(Vector2.ZERO, 0.0)
+				c.draw_style_box(_box(symbol_colors[word[w]]), Rect2(-8.5, -6, 17, 12))
+	c.draw_set_transform(Vector2.ZERO, 0.0)
 
-	draw_texture_rect(_vignette, Rect2(Vector2.ZERO, size), false)
+
+func _draw_overlay(c: CanvasItem) -> void:
+	c.draw_texture_rect(_vignette, Rect2(Vector2.ZERO, size), false)
 	if focus > 0.0:
 		var r := Vector2(size.x * 0.62, size.y * 0.72)
-		draw_texture_rect(_focus_tex, Rect2(size * 0.5 - r * 0.5, r), false, Color(1, 1, 1, focus))
+		c.draw_texture_rect(_focus_tex, Rect2(size * 0.5 - r * 0.5, r), false, Color(1, 1, 1, focus))
 	if veil > 0.0:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(bg_color, veil))
+		c.draw_rect(Rect2(Vector2.ZERO, size), Color(veil_color, veil))
+
+
+## Transição com o selo do símbolo; `heat` > 0 = acesa pelo trem.
+func _draw_edge(c: CanvasItem, i: int, heat: float) -> void:
+	var pts := _paths[i]
+	if pts.size() < 2:
+		return
+	var color := rail_color.lerp(Color(lit_color, 0.75), heat * 0.8)
+	if heat > 0.0:
+		c.draw_polyline(pts, Color(lit_color, 0.10 * heat), 14.0, true)
+	RailSketch.draw_rail(c, pts, color)
+	RailSketch.arrow_head(c, pts[pts.size() - 1],
+			(pts[pts.size() - 1] - pts[pts.size() - 2]).normalized(), color, 9.0)
+	var symbol: int = EDGES[i][2]
+	c.draw_circle(_mids[i], 9.0, Color(symbol_colors[symbol], 0.55 + 0.45 * heat))
+	var font := get_theme_default_font()
+	var text := str(symbol)
+	var ts := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13)
+	c.draw_string(font, _mids[i] + Vector2(-ts.x * 0.5, ts.y * 0.32), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color.WHITE)
+
+
+## Estação; `glow` > 0 = acabou de receber um trem.
+func _draw_state(c: CanvasItem, i: int, glow: float) -> void:
+	var pos := _state_pos(i)
+	c.draw_circle(pos, STATE_RADIUS, bg_color.lerp(state_color, 0.06 + 0.16 * glow))
+	c.draw_arc(pos, STATE_RADIUS, 0, TAU, 48, Color(state_color, 0.75 + 0.25 * glow), 2.5, true)
+	if i in ACCEPTING:
+		c.draw_arc(pos, STATE_RADIUS - 6.0, 0, TAU, 48, Color(state_color, 0.75 + 0.25 * glow), 1.6, true)
+	var font := get_theme_default_font()
+	var label := "q%d" % i
+	var ls := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16)
+	c.draw_string(font, pos + Vector2(-ls.x * 0.5, ls.y * 0.3), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, state_color)
 
 
 func _box(color: Color) -> StyleBoxFlat:
