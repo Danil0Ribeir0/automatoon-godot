@@ -35,7 +35,7 @@ func show_world(world: WorldData) -> void:
 	_done.clear()
 	for i in world.levels.size():
 		var best := ProgressStore.best_stars(world.id, i)
-		var unlocked := ProgressStore.is_unlocked(world.id, i)
+		var unlocked := ProgressStore.is_unlocked(world, i)
 		_done.append(best > 0)
 		var button := _make_node(i, unlocked, best)
 		add_child(button)
@@ -96,7 +96,8 @@ func _make_node(index: int, unlocked: bool, best: int) -> Button:
 	button.focus_mode = Control.FOCUS_NONE
 	button.disabled = not unlocked
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if unlocked else Control.CURSOR_ARROW
-	button.tooltip_text = _world.levels[index].title if unlocked else "Conclua a fase anterior"
+	button.tooltip_text = _world.levels[index].title if unlocked \
+			else "Conclua a fase %d" % (_world.required_level(index) + 1)
 	button.add_theme_stylebox_override("normal", _circle(fill_color, tone))
 	button.add_theme_stylebox_override("hover", _circle(Color(fill_color, 0.75), Color.WHITE))
 	button.add_theme_stylebox_override("pressed", _circle(fill_color.darkened(0.3), Color.WHITE))

@@ -21,9 +21,10 @@ static func record(world_id: StringName, index: int, stars: int) -> void:
 		cfg.save(PATH)
 
 
-## A 1ª fase sempre está liberada; as outras, depois de concluir a anterior.
-static func is_unlocked(world_id: StringName, index: int) -> bool:
-	return index == 0 or best_stars(world_id, index - 1) > 0
+## Liberada se não depende de nada ou se a fase exigida (WorldData.unlock_after) foi concluída.
+static func is_unlocked(world: WorldData, index: int) -> bool:
+	var req := world.required_level(index)
+	return req < 0 or best_stars(world.id, req) > 0
 
 
 static func world_stars(world: WorldData) -> int:

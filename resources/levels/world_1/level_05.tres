@@ -9,14 +9,30 @@
 
 [sub_resource type="Resource" id="Train_1"]
 script = ExtResource("4_td")
-wagons = Array[ExtResource("2_sd")]([ExtResource("5_s0")])
+wagons = Array[ExtResource("2_sd")]([ExtResource("6_s1"), ExtResource("5_s0"), ExtResource("5_s0"), ExtResource("6_s1"), ExtResource("6_s1"), ExtResource("5_s0")])
+
+[sub_resource type="Resource" id="Fixed_1"]
+script = ExtResource("3_sp")
+cell = Vector2i(1, 3)
+symbol = ExtResource("5_s0")
+
+[sub_resource type="Resource" id="Fixed_2"]
+script = ExtResource("3_sp")
+cell = Vector2i(5, 3)
+symbol = ExtResource("6_s1")
+
+[sub_resource type="Resource" id="Fixed_3"]
+script = ExtResource("3_sp")
+cell = Vector2i(3, 0)
+symbol = ExtResource("5_s0")
 
 [resource]
 script = ExtResource("1_ld")
-title = "Sua primeira estação"
-grid_size = Vector2i(5, 5)
-blocked_cells = Array[Vector2i]([Vector2i(2, 0), Vector2i(2, 1), Vector2i(2, 2), Vector2i(2, 3), Vector2i(4, 1), Vector2i(4, 3)])
+title = "Colheita final"
+grid_size = Vector2i(7, 7)
+blocked_cells = Array[Vector2i]([Vector2i(3, 1), Vector2i(3, 2), Vector2i(3, 3), Vector2i(3, 4), Vector2i(3, 5), Vector2i(0, 0), Vector2i(6, 6), Vector2i(1, 1), Vector2i(5, 5), Vector2i(5, 1), Vector2i(1, 5)])
 station_tool_enabled = true
-available_symbols = Array[ExtResource("2_sd")]([ExtResource("5_s0")])
+available_symbols = Array[ExtResource("2_sd")]([ExtResource("5_s0"), ExtResource("6_s1")])
+fixed_stations = Array[ExtResource("3_sp")]([SubResource("Fixed_1"), SubResource("Fixed_2"), SubResource("Fixed_3")])
 train = SubResource("Train_1")
-par_rails = 8
+par_rails = 7

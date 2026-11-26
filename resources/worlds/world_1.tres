@@ -7,14 +7,10 @@
 [ext_resource type="Resource" path="res://resources/levels/world_1/level_03.tres" id="L03"]
 [ext_resource type="Resource" path="res://resources/levels/world_1/level_04.tres" id="L04"]
 [ext_resource type="Resource" path="res://resources/levels/world_1/level_05.tres" id="L05"]
-[ext_resource type="Resource" path="res://resources/levels/world_1/level_06.tres" id="L06"]
-[ext_resource type="Resource" path="res://resources/levels/world_1/level_07.tres" id="L07"]
-[ext_resource type="Resource" path="res://resources/levels/world_1/level_08.tres" id="L08"]
-[ext_resource type="Resource" path="res://resources/levels/world_1/level_09.tres" id="L09"]
-[ext_resource type="Resource" path="res://resources/levels/world_1/level_10.tres" id="L10"]
 
 [resource]
 script = ExtResource("1_wd")
 id = &"world_1"
 title = "Fazenda"
-levels = Array[ExtResource("2_ld")]([ExtResource("L01"), ExtResource("L02"), ExtResource("L03"), ExtResource("L04"), ExtResource("L05"), ExtResource("L06"), ExtResource("L07"), ExtResource("L08"), ExtResource("L09"), ExtResource("L10")])
+levels = Array[ExtResource("2_ld")]([ExtResource("L01"), ExtResource("L02"), ExtResource("L03"), ExtResource("L04"), ExtResource("L05")])
+unlock_after = PackedInt32Array(-1, 0, -1, 2, -1)
