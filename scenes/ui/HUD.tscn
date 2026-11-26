@@ -2,31 +2,40 @@
 
 [ext_resource type="Script" uid="uid://dhgpsm2gau7v1" path="res://scripts/ui/hud.gd" id="1_kw0id"]
 [ext_resource type="PackedScene" uid="uid://dk3wuxcfkmg6v" path="res://scenes/ui/ToolButton.tscn" id="2_atyv1"]
+[ext_resource type="PackedScene" uid="uid://bit2w0gaywxk" path="res://scenes/rails/trilhoReto.glb" id="3_6ll6g"]
+[ext_resource type="PackedScene" uid="uid://3k3hxgc0v5o6" path="res://scenes/stations/Station.tscn" id="4_stn"]
 
 [node name="Hud" type="CanvasLayer" unique_id=672626895]
 script = ExtResource("1_kw0id")
 
 [node name="ToolBar" type="HBoxContainer" parent="." unique_id=24715922]
-anchors_preset = 5
+anchors_preset = 7
 anchor_left = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
-offset_left = -200.0
-offset_top = 20.0
-offset_right = 200.0
-offset_bottom = 100.0
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -83.0
+offset_right = 160.0
+offset_bottom = -23.0
 grow_horizontal = 2
+grow_vertical = 0
 mouse_filter = 2
 theme_override_constants/separation = 40
 
 [node name="RailButton" parent="ToolBar" unique_id=1884159099 instance=ExtResource("2_atyv1")]
 layout_mode = 2
-text = "Trilho"
+icon_model = ExtResource("3_6ll6g")
 
 [node name="StationButton" parent="ToolBar" unique_id=225599295 instance=ExtResource("2_atyv1")]
 layout_mode = 2
-text = "Estação"
 key_hint = "2"
 show_symbol_badge = true
+icon_model = ExtResource("4_stn")
+model_yaw = 35.0
+model_padding = 1.0
+model_tilt = 30.0
+content_margin = 4
 
 [node name="TestButton" parent="." unique_id=1124584957 instance=ExtResource("2_atyv1")]
 anchors_preset = 3
@@ -34,25 +43,43 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -204.0
-offset_top = -93.0
+offset_left = -164.0
+offset_top = -83.0
 offset_right = -24.0
 offset_bottom = -23.0
 grow_horizontal = 0
 grow_vertical = 0
-text = "Testar"
-key_hint = "T"
+text = "Partir"
+key_hint = "Espaço"
 toggleable = false
 
-[node name="ResultLabel" type="Label" parent="." unique_id=2066626742]
+[node name="ResetButton" parent="." unique_id=1587342093 instance=ExtResource("2_atyv1")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -83.0
+offset_right = 164.0
+offset_bottom = -23.0
+grow_vertical = 0
+text = "Reiniciar"
+key_hint = "R"
+toggleable = false
+
+[node name="ResultLabel" type="RichTextLabel" parent="." unique_id=2066626742]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -23.0
-offset_right = 20.0
+offset_left = -400.0
+offset_top = -165.0
+offset_right = 400.0
+offset_bottom = -121.0
 grow_horizontal = 2
 grow_vertical = 0
-size_flags_horizontal = 4
+mouse_filter = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0

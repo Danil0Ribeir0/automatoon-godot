@@ -3,5 +3,5 @@
 [ext_resource type="Script" uid="uid://cr8m33otwqngh" path="res://scripts/ui/tool_button.gd" id="1_hlv4c"]
 
 [node name="ToolButton" type="Button" unique_id=1884159099]
-custom_minimum_size = Vector2(180, 70)
+custom_minimum_size = Vector2(140, 60)
 script = ExtResource("1_hlv4c")

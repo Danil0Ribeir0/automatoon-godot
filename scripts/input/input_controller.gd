@@ -19,7 +19,10 @@ signal test_requested
 signal restart_requested
 
 @export var picker: GridPicker
+## Quanto o trackpad precisa rolar (dois dedos) para trocar um símbolo.
+@export var pan_step := 1.0
 
+var _pan_accum := 0.0
 var _active_button := MOUSE_BUTTON_NONE
 var _last_cell := GridPicker.NO_CELL
 var _hover_cell := GridPicker.NO_CELL
@@ -30,6 +33,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_handle_key(event)
 	elif event is InputEventMouseButton:
 		_handle_button(event)
+	elif event is InputEventPanGesture:
+		_handle_pan(event)
 	elif event is InputEventMouseMotion:
 		if _active_button == MOUSE_BUTTON_NONE:
 			_update_hover(event.position)
@@ -57,10 +62,22 @@ func _handle_key(event: InputEventKey) -> void:
 			station_tool_requested.emit()
 		KEY_3:
 			switch_tool_requested.emit()
-		KEY_T:
+		KEY_SPACE, KEY_ENTER, KEY_KP_ENTER: # Espaço é o principal; Enter por instinto
 			test_requested.emit()
 		KEY_R:
 			restart_requested.emit()
+
+
+## Trackpad do Mac: rolar com dois dedos chega como gesto, não como roda do mouse.
+## Acumula o deslocamento e troca um símbolo a cada pan_step.
+func _handle_pan(event: InputEventPanGesture) -> void:
+	if _active_button != MOUSE_BUTTON_NONE:
+		return
+	_pan_accum += event.delta.y
+	while absf(_pan_accum) >= pan_step:
+		var step := 1 if _pan_accum > 0 else -1
+		_pan_accum -= step * pan_step
+		symbol_scrolled.emit(step)
 
 
 func _handle_button(event: InputEventMouseButton) -> void:
